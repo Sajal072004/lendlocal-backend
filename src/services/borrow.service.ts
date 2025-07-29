@@ -113,4 +113,43 @@ export class BorrowService {
 
     return { incoming, outgoing };
   }
+
+  /**
+   * Allows a borrower to mark an item as returned.
+   * @param requestId - The ID of the borrow request.
+   * @param borrowerId - The ID of the user returning the item.
+   * @returns The updated borrow request document.
+   */
+  public async returnItem(
+    requestId: string,
+    borrowerId: string
+  ): Promise<IBorrowRequest> {
+    const borrowRequest = await BorrowRequest.findById(requestId);
+
+    if (!borrowRequest) {
+      throw new Error('Borrow request not found.');
+    }
+
+    // 1. Verify the user returning the item is the borrower.
+    if (borrowRequest.borrower.toString() !== borrowerId) {
+      throw new Error('You are not authorized to return this item.');
+    }
+
+    // 2. Ensure the request was approved and not already returned.
+    if (borrowRequest.status !== 'approved') {
+      throw new Error('This item cannot be returned as it was not in an approved borrowing state.');
+    }
+
+    // 3. Update the request status and set the return date.
+    borrowRequest.status = 'returned';
+    borrowRequest.returnDate = new Date();
+
+    // 4. Make the item available again.
+    await Item.findByIdAndUpdate(borrowRequest.item, {
+      availabilityStatus: 'available',
+    });
+
+    await borrowRequest.save();
+    return borrowRequest;
+  }
 }

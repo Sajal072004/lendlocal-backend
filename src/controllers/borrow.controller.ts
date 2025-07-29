@@ -41,3 +41,15 @@ export const getRequests = async (req: Request, res: Response) => {
     res.status(400).json({ message: (error as Error).message });
   }
 };
+
+export const returnItem = async (req: Request, res: Response) => {
+  try {
+    const { requestId } = req.params;
+    const borrowerId = req.user!._id.toString();
+
+    const updatedRequest = await borrowService.returnItem(requestId, borrowerId);
+    res.status(200).json(updatedRequest);
+  } catch (error) {
+    res.status(400).json({ message: (error as Error).message });
+  }
+};
