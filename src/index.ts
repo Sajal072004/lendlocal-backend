@@ -6,6 +6,8 @@ import connectDB from './config/db';
 import passport from 'passport';
 import './config/passport'; 
 import authRoutes from './routes/auth.routes';
+import communityRoutes from './routes/community.routes';
+import cookieParser from 'cookie-parser';
 
 dotenv.config();
 
@@ -22,10 +24,11 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-
+app.use(cookieParser());
 app.use(passport.initialize());
 
 app.use('/api/auth', authRoutes);
+app.use('/api/communities', communityRoutes);
 
 
 app.get('/api', (req: Request, res: Response) => {
