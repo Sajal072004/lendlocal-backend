@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { protect } from '../middleware/auth.middleware';
-import { requestItem } from '../controllers/borrow.controller';
+import { getRequests, requestItem, respondToRequest } from '../controllers/borrow.controller';
 
 const router = Router();
 
@@ -8,5 +8,7 @@ const router = Router();
 router.use(protect);
 
 router.post('/request/:itemId', requestItem);
+router.post('/respond/:requestId', respondToRequest);
+router.get('/requests', getRequests);
 
 export default router;

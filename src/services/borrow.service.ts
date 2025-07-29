@@ -49,4 +49,68 @@ export class BorrowService {
 
     return borrowRequest;
   }
+
+  /**
+   * Allows a lender to respond to a borrow request.
+   * @param requestId - The ID of the borrow request.
+   * @param lenderId - The ID of the user responding (must be the item owner).
+   * @param response - The response, either 'approved' or 'denied'.
+   * @returns The updated borrow request document.
+   */
+  public async respondToRequest(
+    requestId: string,
+    lenderId: string,
+    response: 'approved' | 'denied'
+  ): Promise<IBorrowRequest> {
+    const borrowRequest = await BorrowRequest.findById(requestId);
+
+    if (!borrowRequest) {
+      throw new Error('Borrow request not found.');
+    }
+
+    // 1. Verify the user responding is the lender.
+    if (borrowRequest.lender.toString() !== lenderId) {
+      throw new Error('You are not authorized to respond to this request.');
+    }
+
+    // 2. Ensure the request is still pending.
+    if (borrowRequest.status !== 'pending') {
+      throw new Error('This request has already been responded to.');
+    }
+
+    // 3. Update the request status.
+    borrowRequest.status = response;
+
+    // 4. If approved, update the item's availability.
+    if (response === 'approved') {
+      await Item.findByIdAndUpdate(borrowRequest.item, {
+        availabilityStatus: 'borrowed',
+      });
+    }
+
+    await borrowRequest.save();
+    return borrowRequest;
+  }
+
+  /**
+   * Gets all incoming and outgoing borrow requests for a user.
+   * @param userId - The ID of the user.
+   * @returns An object with lists of incoming and outgoing requests.
+   */
+  public async getRequests(
+    userId: string
+  ): Promise<{ incoming: IBorrowRequest[]; outgoing: IBorrowRequest[] }> {
+    
+    // Find requests where the user is the lender (owner)
+    const incoming = await BorrowRequest.find({ lender: userId })
+      .populate('borrower', 'name profilePicture') // Get borrower's info
+      .populate('item', 'name photos'); // Get item's info
+
+    // Find requests where the user is the borrower
+    const outgoing = await BorrowRequest.find({ borrower: userId })
+      .populate('lender', 'name profilePicture') // Get lender's info
+      .populate('item', 'name photos'); // Get item's info
+
+    return { incoming, outgoing };
+  }
 }
