@@ -8,7 +8,7 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const storage = new CloudinaryStorage({
+const itemStorage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
     folder: 'LendLocal', // Folder name in Cloudinary
@@ -16,4 +16,16 @@ const storage = new CloudinaryStorage({
   } as any, // 'any' is used here due to a type mismatch in the library
 });
 
-export const upload = multer({ storage: storage });
+// Uploader for Chat Images
+const chatStorage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'LendLocal/chat_images', // Separate folder for chat images
+    allowedFormats: ['jpg', 'png', 'jpeg']
+  } as any,
+  
+});
+
+export const uploadChatImage = multer({ storage: chatStorage });
+
+export const uploadItemPhoto = multer({ storage: itemStorage });
