@@ -10,6 +10,7 @@ import communityRoutes from './routes/community.routes';
 import cookieParser from 'cookie-parser';
 import itemRoutes from './routes/item.routes';
 import borrowRoutes from './routes/borrow.routes';
+import reviewRoutes from './routes/review.routes';
 
 dotenv.config();
 
@@ -33,6 +34,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/communities', communityRoutes);
 app.use('/api/items', itemRoutes);
 app.use('/api/borrow', borrowRoutes);
+app.use('/api/reviews', reviewRoutes);
 
 
 app.get('/api', (req: Request, res: Response) => {

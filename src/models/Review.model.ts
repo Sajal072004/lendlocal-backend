@@ -17,7 +17,9 @@ const ReviewSchema: Schema = new Schema({
   reviewer: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   reviewee: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   // Ensures one review per transaction
-  borrowRequest: { type: Schema.Types.ObjectId, ref: 'BorrowRequest', required: true, unique: true },
+  borrowRequest: { type: Schema.Types.ObjectId, ref: 'BorrowRequest', required: true },
 }, { timestamps: true });
+
+ReviewSchema.index({ borrowRequest: 1, reviewer: 1 }, { unique: true });
 
 export const Review = mongoose.model<IReview>('Review', ReviewSchema);
