@@ -8,6 +8,7 @@ import './config/passport';
 import authRoutes from './routes/auth.routes';
 import communityRoutes from './routes/community.routes';
 import cookieParser from 'cookie-parser';
+import itemRoutes from './routes/item.routes';
 
 dotenv.config();
 
@@ -29,6 +30,7 @@ app.use(passport.initialize());
 
 app.use('/api/auth', authRoutes);
 app.use('/api/communities', communityRoutes);
+app.use('/api/items', itemRoutes);
 
 
 app.get('/api', (req: Request, res: Response) => {
