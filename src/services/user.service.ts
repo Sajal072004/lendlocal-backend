@@ -16,21 +16,22 @@ interface IUpdateProfileData {
 }
 
 export class UserService {
+  // ... inside the UserService class
+
   /**
    * Gets a user's public profile information.
    * @param userId The ID of the user whose profile to fetch.
    */
   public async getProfileById(userId: string): Promise<any> {
-    // Select only the fields that should be public
+    // Select more fields to make the profile richer
     const user = await User.findById(userId).select(
-      'name profilePicture reputationScore createdAt'
+      'name profilePicture reputationScore createdAt address.city address.state' // <-- ADDED city and state
     );
     if (!user) {
       throw new Error('User not found.');
     }
     return user;
   }
-
   /**
    * Updates a user's own profile information.
    * @param userId The ID of the user to update.
