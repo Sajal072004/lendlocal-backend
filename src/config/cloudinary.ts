@@ -26,6 +26,17 @@ const chatStorage = new CloudinaryStorage({
   
 });
 
+// Uploader for Profile Pictures
+const profileStorage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'LendLocal/profile_pictures', // Separate folder
+    allowedFormats: ['jpg', 'png', 'jpeg']
+  } as any,
+});
+
+export const uploadProfilePhoto = multer({ storage: profileStorage });
+
 export const uploadChatImage = multer({ storage: chatStorage });
 
 export const uploadItemPhoto = multer({ storage: itemStorage });

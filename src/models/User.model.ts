@@ -7,6 +7,14 @@ interface IPoint {
   coordinates: [number, number]; // [longitude, latitude]
 }
 
+// An interface for a structured address
+interface IAddress {
+  street: string;
+  city: string;
+  state: string;
+  pinCode: string;
+}
+
 // Update the main User interface
 export interface IUser extends Document {
   _id: mongoose.Types.ObjectId; 
@@ -20,7 +28,9 @@ export interface IUser extends Document {
   isVerified: boolean;
   otp?: string;
   otpExpires?: Date;
-  isDisabled: boolean; // <-- ADD THIS
+  isDisabled: boolean; 
+  phoneNumber?: string; 
+  address?: IAddress;
 }
 
 const UserSchema: Schema = new Schema({
@@ -42,7 +52,14 @@ const UserSchema: Schema = new Schema({
   isVerified: { type: Boolean, default: false },
   otp: { type: String, select: false },
   otpExpires: { type: Date, select: false },
-  isDisabled: { type: Boolean, default: false }, // <-- ADD THIS with a default value
+  isDisabled: { type: Boolean, default: false }, 
+  phoneNumber: { type: String }, 
+  address: {                    
+    street: { type: String },
+    city: { type: String },
+    state: { type: String },
+    pinCode: { type: String },
+  },
 }, { timestamps: true });
 
 // Create a 2dsphere index for efficient geospatial queries
