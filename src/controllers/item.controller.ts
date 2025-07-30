@@ -24,7 +24,7 @@ export const getItemsByCommunity = async (req: Request, res: Response) => {
   try {
     const { communityId } = req.params;
     const userId = req.user!._id;
-    const items = await itemService.findByCommunity(communityId, userId);
+    const items = await itemService.findByCommunity(communityId, userId.toString());
     res.status(200).json(items);
   } catch (error) {
     res.status(403).json({ message: (error as Error).message });
@@ -35,7 +35,7 @@ export const updateItem = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const userId = req.user!._id;
-    const updatedItem = await itemService.update(id, userId, req.body);
+    const updatedItem = await itemService.update(id, userId.toString(), req.body);
     res.status(200).json(updatedItem);
   } catch (error) {
     const errorMessage = (error as Error).message;
@@ -48,7 +48,7 @@ export const deleteItem = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const userId = req.user!._id;
-    await itemService.delete(id, userId);
+    await itemService.delete(id, userId.toString());
     res.status(204).send();
   } catch (error) {
     const errorMessage = (error as Error).message;
@@ -74,5 +74,16 @@ export const searchAllItems = async (req: Request, res: Response) => {
       res.status(200).json(items);
   } catch (error) {
       res.status(400).json({ message: (error as Error).message });
+  }
+};
+
+
+export const getItemById = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const item = await itemService.findById(id);
+    res.status(200).json(item);
+  } catch (error) {
+    res.status(404).json({ message: (error as Error).message });
   }
 };

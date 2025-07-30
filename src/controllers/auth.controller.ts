@@ -72,3 +72,11 @@ export const googleAuthCallback = (req: Request, res: Response) => {
 
   res.redirect(`${process.env.FRONTEND_URL}/dashboard`);
 };
+
+// ... other controller functions
+
+export const getSession = async (req: Request, res: Response) => {
+  // This function is protected by the 'protect' middleware.
+  // If the middleware passes, req.user is guaranteed to be attached.
+  res.status(200).json({ user: req.user });
+};

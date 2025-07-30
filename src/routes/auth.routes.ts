@@ -5,7 +5,9 @@ import {
   loginUser,
   googleAuthCallback,
   verifyOtp,
+  getSession,
 } from '../controllers/auth.controller';
+import { protect } from '../middleware/auth.middleware';
 
 const router = Router();
 
@@ -24,5 +26,7 @@ router.get(
   passport.authenticate('google', { session: false, failureRedirect: '/login' }),
   googleAuthCallback
 );
+
+router.get('/session', protect, getSession);
 
 export default router;

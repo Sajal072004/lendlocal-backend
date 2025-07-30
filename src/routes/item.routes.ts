@@ -7,6 +7,7 @@ import {
   updateItem,
   deleteItem,
   searchAllItems,
+  getItemById,
 } from '../controllers/item.controller';
 
 const router = Router();
@@ -19,5 +20,6 @@ router.get('/community/:communityId', protect, getItemsByCommunity);
 router.put('/:id', protect, updateItem);
 router.delete('/:id', protect, deleteItem);
 router.get('/search', searchAllItems);
+router.get('/:id', protect, getItemById);
 
 export default router;

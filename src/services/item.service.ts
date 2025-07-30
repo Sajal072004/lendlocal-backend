@@ -170,4 +170,18 @@ export class ItemService {
     const results = await User.aggregate(searchPipeline as any[]);
     return results;
   }
+
+  /**
+   * Finds a single item by its ID.
+   * @param itemId The ID of the item to find.
+   */
+  public async findById(itemId: string): Promise<IItem> {
+    const item = await Item.findById(itemId).populate('owner', 'name profilePicture reputationScore');
+    
+    if (!item) {
+      throw new Error('Item not found.');
+    }
+    
+    return item;
+  }
 }
