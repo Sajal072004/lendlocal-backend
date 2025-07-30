@@ -37,3 +37,4 @@ coverage/
 *.cache
 tmp/
 temp/
+test-client.js

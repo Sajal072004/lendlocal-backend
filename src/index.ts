@@ -1,5 +1,7 @@
 
 import express, { Express, Request, Response } from 'express';
+import http from 'http';
+import { initSocket } from './socket';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import connectDB from './config/db';
@@ -11,12 +13,16 @@ import cookieParser from 'cookie-parser';
 import itemRoutes from './routes/item.routes';
 import borrowRoutes from './routes/borrow.routes';
 import reviewRoutes from './routes/review.routes';
+import chatRoutes from './routes/chat.routes';
+import itemRequestRoutes from './routes/item-request.routes';
 
 dotenv.config();
 
 connectDB();
 
 const app: Express = express();
+const server = http.createServer(app);
+initSocket(server);
 const PORT = process.env.PORT || 8080;
 
 
@@ -35,12 +41,14 @@ app.use('/api/communities', communityRoutes);
 app.use('/api/items', itemRoutes);
 app.use('/api/borrow', borrowRoutes);
 app.use('/api/reviews', reviewRoutes);
+app.use('/api/chat', chatRoutes);
+app.use('/api/item-requests', itemRequestRoutes);
 
 
 app.get('/api', (req: Request, res: Response) => {
   res.send('LendLocal API is running...');
 });
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`🚀 Server is running on port ${PORT}`);
 });
