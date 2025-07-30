@@ -39,3 +39,4 @@ tmp/
 temp/
 test-client.js
 create-admin.ts
+test-notification.js

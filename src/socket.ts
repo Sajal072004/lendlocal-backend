@@ -1,3 +1,4 @@
+// lendlocal-backend/src/socket.ts
 import { Server as HttpServer } from 'http';
 import { Server, Socket } from 'socket.io';
 
@@ -14,7 +15,14 @@ export const initSocket = (httpServer: HttpServer) => {
   io.on('connection', (socket: Socket) => {
     console.log('🔌 A user connected:', socket.id);
 
-    // Listen for a client to join a specific conversation room
+    // --- ADD THIS ---
+    // Have user join a room based on their own userId
+    socket.on('joinUserRoom', (userId: string) => {
+        socket.join(userId);
+        console.log(`User ${socket.id} joined their personal room: ${userId}`);
+    });
+    // ---------------
+
     socket.on('joinConversation', (conversationId: string) => {
       socket.join(conversationId);
       console.log(`User ${socket.id} joined conversation ${conversationId}`);

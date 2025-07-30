@@ -1,13 +1,12 @@
 import { BorrowRequest, IBorrowRequest } from '../models/BorrowRequest.model';
 import { Item } from '../models/Item.model';
-import { IUser } from '../models/User.model';
+import { NotificationService } from './notification.service';
+
+const notificationService = new NotificationService();
 
 export class BorrowService {
   /**
    * Creates a borrow request for an item.
-   * @param itemId - The ID of the item to borrow.
-   * @param borrowerId - The ID of the user requesting the item.
-   * @returns The newly created borrow request document.
    */
   public async createRequest(
     itemId: string,
@@ -41,28 +40,32 @@ export class BorrowService {
     const borrowRequest = await BorrowRequest.create({
       item: itemId,
       borrower: borrowerId,
-      lender: item.owner, // The item owner is the lender.
+      lender: item.owner,
       status: 'pending',
     });
 
-    // (Later, we can add a notification service to alert the owner here)
+    // --- NOTIFICATION ---
+    await notificationService.createNotification({
+      recipient: item.owner.toString(),
+      sender: borrowerId,
+      type: 'new_borrow_request',
+      message: `You have a new request to borrow "${item.name}".`,
+      link: `/requests/${borrowRequest._id}`,
+    });
+    // --------------------
 
     return borrowRequest;
   }
 
   /**
    * Allows a lender to respond to a borrow request.
-   * @param requestId - The ID of the borrow request.
-   * @param lenderId - The ID of the user responding (must be the item owner).
-   * @param response - The response, either 'approved' or 'denied'.
-   * @returns The updated borrow request document.
    */
   public async respondToRequest(
     requestId: string,
     lenderId: string,
     response: 'approved' | 'denied'
   ): Promise<IBorrowRequest> {
-    const borrowRequest = await BorrowRequest.findById(requestId);
+    const borrowRequest = await BorrowRequest.findById(requestId).populate('item', 'name');
 
     if (!borrowRequest) {
       throw new Error('Borrow request not found.');
@@ -80,8 +83,7 @@ export class BorrowService {
 
     // 3. Update the request status.
     borrowRequest.status = response;
-
-    // 4. If approved, update the item's availability.
+    
     if (response === 'approved') {
       await Item.findByIdAndUpdate(borrowRequest.item, {
         availabilityStatus: 'borrowed',
@@ -89,42 +91,48 @@ export class BorrowService {
     }
 
     await borrowRequest.save();
+
+    // --- NOTIFICATION ---
+    const notificationType = response === 'approved' ? 'request_approved' : 'request_denied';
+    const message = `Your request to borrow "${(borrowRequest.item as any).name}" has been ${response}.`;
+    
+    await notificationService.createNotification({
+      recipient: borrowRequest.borrower.toString(),
+      sender: lenderId,
+      type: notificationType,
+      message: message,
+      link: `/requests/${borrowRequest._id}`,
+    });
+    // --------------------
+
     return borrowRequest;
   }
 
   /**
    * Gets all incoming and outgoing borrow requests for a user.
-   * @param userId - The ID of the user.
-   * @returns An object with lists of incoming and outgoing requests.
    */
   public async getRequests(
     userId: string
   ): Promise<{ incoming: IBorrowRequest[]; outgoing: IBorrowRequest[] }> {
-    
-    // Find requests where the user is the lender (owner)
     const incoming = await BorrowRequest.find({ lender: userId })
-      .populate('borrower', 'name profilePicture') // Get borrower's info
-      .populate('item', 'name photos'); // Get item's info
+      .populate('borrower', 'name profilePicture')
+      .populate('item', 'name photos');
 
-    // Find requests where the user is the borrower
     const outgoing = await BorrowRequest.find({ borrower: userId })
-      .populate('lender', 'name profilePicture') // Get lender's info
-      .populate('item', 'name photos'); // Get item's info
+      .populate('lender', 'name profilePicture')
+      .populate('item', 'name photos');
 
     return { incoming, outgoing };
   }
 
   /**
    * Allows a borrower to mark an item as returned.
-   * @param requestId - The ID of the borrow request.
-   * @param borrowerId - The ID of the user returning the item.
-   * @returns The updated borrow request document.
    */
   public async returnItem(
     requestId: string,
     borrowerId: string
   ): Promise<IBorrowRequest> {
-    const borrowRequest = await BorrowRequest.findById(requestId);
+    const borrowRequest = await BorrowRequest.findById(requestId).populate('item', 'name');
 
     if (!borrowRequest) {
       throw new Error('Borrow request not found.');
@@ -148,8 +156,19 @@ export class BorrowService {
     await Item.findByIdAndUpdate(borrowRequest.item, {
       availabilityStatus: 'available',
     });
-
+    
     await borrowRequest.save();
+
+    // --- NOTIFICATION ---
+    await notificationService.createNotification({
+        recipient: borrowRequest.lender.toString(),
+        sender: borrowerId,
+        type: 'item_returned',
+        message: `"${(borrowRequest.item as any).name}" has been marked as returned.`,
+        link: `/history/lent`
+    });
+    // --------------------
+    
     return borrowRequest;
   }
 }

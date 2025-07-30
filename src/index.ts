@@ -18,6 +18,7 @@ import itemRequestRoutes from './routes/item-request.routes';
 import adminRoutes from './routes/admin.routes';
 import reportRoutes from './routes/report.routes';
 import userRoutes from './routes/user.routes';
+import notificationRoutes from './routes/notification.routes';
 
 dotenv.config();
 
@@ -49,6 +50,7 @@ app.use('/api/item-requests', itemRequestRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/report', reportRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 
 app.get('/api', (req: Request, res: Response) => {

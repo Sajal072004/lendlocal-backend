@@ -3,6 +3,8 @@ import { Community } from '../models/Community.model';
 import { User } from '../models/User.model';
 import { BorrowRequest, IBorrowRequest } from '../models/BorrowRequest.model';
 import { Item } from '../models/Item.model';
+import { NotificationService } from './notification.service';
+const notificationService = new NotificationService();
 
 // --- Interfaces for data transfer ---
 interface ICreateRequestData {
@@ -88,6 +90,14 @@ export class ItemRequestService {
 
     // In the future, we would add a notification here to alert the requester.
 
+    await notificationService.createNotification({
+      recipient: itemRequest.requester.toString(),
+      sender: offeredById,
+      type: 'new_offer',
+      message: `You have a new offer for your request: "${itemRequest.title}".`,
+      link: `/item-requests/${itemRequest._id}`
+  });
+
     return itemRequest.populate('offers.offeredBy', 'name profilePicture');
   }
 
@@ -139,6 +149,16 @@ export class ItemRequestService {
     await itemRequest.save();
     
     // (Future step: send notifications to both users)
+
+     // --- NOTIFICATION ---
+     await notificationService.createNotification({
+      recipient: offer.offeredBy.toString(), // Notify the person who made the offer
+      sender: requesterId,
+      type: 'offer_accepted',
+      message: `Your offer for "${itemRequest.title}" has been accepted!`,
+      link: `/requests/${borrowRequest._id}` // Link to the new formal request
+  });
+  // --------------------
 
     return borrowRequest.populate(['item', 'borrower', 'lender']);
   }

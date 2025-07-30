@@ -1,6 +1,9 @@
 import { Follow } from '../models/Follow.model';
 import { IUser } from '../models/User.model';
 
+import { NotificationService } from './notification.service';
+const notificationService = new NotificationService();
+
 export class FollowService {
   /**
    * Creates a follow relationship.
@@ -13,7 +16,20 @@ export class FollowService {
       throw new Error("You cannot follow yourself.");
     }
     // The unique index on the model will prevent duplicates
-    return Follow.create({ follower: followerId, following: followingId });
+    const follow = await Follow.create({ follower: followerId, following: followingId });
+
+    // --- NOTIFICATION ---
+    await notificationService.createNotification({
+      recipient: followingId, // The user who is being followed
+      sender: followerId,
+      type: 'new_follower',
+      message: `You have a new follower!`,
+      link: `/users/${followerId}/profile`
+  });
+  // --------------------
+
+
+    return follow;
   }
 
   /**
