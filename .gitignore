@@ -38,3 +38,4 @@ coverage/
 tmp/
 temp/
 test-client.js
+create-admin.ts

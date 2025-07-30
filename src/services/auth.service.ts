@@ -119,6 +119,10 @@ export class AuthService {
 
     const user = await User.findOne({ email }).select('+password');
 
+    if (user && user.isDisabled) {
+      throw new Error('Your account has been disabled. Please contact support.');
+    }
+
     // Add a check to ensure the account is verified
     if (user && !user.isVerified) {
       throw new Error('Account not verified. Please check your email and enter the OTP.');

@@ -33,6 +33,12 @@ export const protect = async (req: Request, res: Response, next: NextFunction) =
     if (!req.user) {
         return res.status(401).json({ message: 'User not found' });
     }
+
+    if (req.user.isDisabled) {
+      // Clear the cookie to log them out on the frontend
+      res.clearCookie('token');
+      return res.status(403).json({ message: 'Forbidden: Your account has been disabled.' });
+    }
     
     // 4. Grant access to the protected route
     next();

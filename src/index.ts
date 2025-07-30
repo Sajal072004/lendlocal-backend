@@ -15,6 +15,8 @@ import borrowRoutes from './routes/borrow.routes';
 import reviewRoutes from './routes/review.routes';
 import chatRoutes from './routes/chat.routes';
 import itemRequestRoutes from './routes/item-request.routes';
+import adminRoutes from './routes/admin.routes';
+import reportRoutes from './routes/report.routes';
 
 dotenv.config();
 
@@ -43,6 +45,8 @@ app.use('/api/borrow', borrowRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/item-requests', itemRequestRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/report', reportRoutes);
 
 
 app.get('/api', (req: Request, res: Response) => {

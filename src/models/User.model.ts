@@ -9,45 +9,46 @@ interface IPoint {
 
 // Update the main User interface
 export interface IUser extends Document {
-  _id: mongoose.Types.ObjectId; // Ensure _id is included 
+  _id: mongoose.Types.ObjectId; 
   name: string;
   email: string;
   password?: string;
   reputationScore: number;
-  location?: IPoint; // Add optional location field
-  googleId?: string; // <-- Add this
-  profilePicture?: string; // <-- Add this
+  location?: IPoint;
+  googleId?: string;
+  profilePicture?: string;
   isVerified: boolean;
   otp?: string;
   otpExpires?: Date;
+  isDisabled: boolean; // <-- ADD THIS
 }
 
 const UserSchema: Schema = new Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true, lowercase: true },
   password: { type: String, select: false },
-  googleId: { type: String, unique: true, sparse: true }, // <-- Add this
-  profilePicture: { type: String }, // <-- Add this
+  googleId: { type: String, unique: true, sparse: true },
+  profilePicture: { type: String },
   reputationScore: { type: Number, default: 5, min: 1, max: 5 },
-  // Add the location field to the schema
   location: {
     type: {
       type: String,
       enum: ['Point'],
     },
     coordinates: {
-      type: [Number], // [longitude, latitude]
+      type: [Number],
     }
   },
   isVerified: { type: Boolean, default: false },
   otp: { type: String, select: false },
   otpExpires: { type: Date, select: false },
+  isDisabled: { type: Boolean, default: false }, // <-- ADD THIS with a default value
 }, { timestamps: true });
 
 // Create a 2dsphere index for efficient geospatial queries
 UserSchema.index({ location: '2dsphere' });
 
-// ... (keep the pre-save password hashing middleware)
+// pre-save password hashing middleware
 UserSchema.pre<IUser>('save', async function (next) {
   if (!this.isModified('password') || !this.password) {
     return next();
