@@ -56,3 +56,23 @@ export const deleteItem = async (req: Request, res: Response) => {
     res.status(statusCode).json({ message: errorMessage });
   }
 };
+
+export const searchAllItems = async (req: Request, res: Response) => {
+  try {
+      const { q, lon, lat } = req.query;
+
+      if (!q || !lon || !lat) {
+          return res.status(400).json({ message: 'Search query (q), longitude (lon), and latitude (lat) are required.' });
+      }
+
+      const items = await itemService.searchNearby(
+          q as string,
+          parseFloat(lon as string),
+          parseFloat(lat as string)
+      );
+
+      res.status(200).json(items);
+  } catch (error) {
+      res.status(400).json({ message: (error as Error).message });
+  }
+};

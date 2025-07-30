@@ -6,6 +6,7 @@ import {
   getItemsByCommunity,
   updateItem,
   deleteItem,
+  searchAllItems,
 } from '../controllers/item.controller';
 
 const router = Router();
@@ -17,5 +18,6 @@ router.post('/', protect, uploadItemPhoto.single('photo'), createItem);
 router.get('/community/:communityId', protect, getItemsByCommunity);
 router.put('/:id', protect, updateItem);
 router.delete('/:id', protect, deleteItem);
+router.get('/search', searchAllItems);
 
 export default router;

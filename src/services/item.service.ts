@@ -1,5 +1,6 @@
 import { Item, IItem } from '../models/Item.model';
 import { Community } from '../models/Community.model';
+import { User } from '../models/User.model';
 
 interface ICreateItemData {
   name: string;
@@ -88,5 +89,85 @@ export class ItemService {
     }
 
     await Item.findByIdAndDelete(itemId);
+  }
+
+  // lendlocal-backend/src/services/item.service.ts
+
+  /**
+   * Searches for items across all communities based on a text query and the user's location.
+   * Calculates the distance from the searching user to the item's owner.
+   * @param query - The text to search for in item names and descriptions.
+   * @param longitude - The longitude of the searching user.
+   * @param latitude - The latitude of the searching user.
+   * @returns A list of items with owner distance calculated in meters.
+   */
+  public async searchNearby(query: string, longitude: number, latitude: number): Promise<any[]> {
+    if (isNaN(longitude) || isNaN(latitude)) {
+        throw new Error("Invalid longitude or latitude provided.");
+    }
+
+    const searchPipeline = [
+      // 1. Start with a geospatial search on the 'users' collection
+      {
+        $geoNear: {
+          near: { type: 'Point', coordinates: [longitude, latitude] },
+          distanceField: 'ownerDistance', // This field will hold the calculated distance
+          spherical: true,
+          // Optional: maxDistance: 50000 // Limit search to 50km
+        }
+      },
+      // 2. Join with the 'items' collection to find items owned by these nearby users
+      {
+        $lookup: {
+          from: 'items', // The name of the items collection
+          localField: '_id', // The 'user' _id
+          foreignField: 'owner', // The 'owner' field on the item
+          as: 'items' // The array of items owned by the user
+        }
+      },
+      // 3. Unwind the items array to de-normalize the data
+      {
+        $unwind: '$items'
+      },
+      // 4. Replace the root to promote the item to the top level
+      {
+        $replaceRoot: {
+          newRoot: {
+            $mergeObjects: ['$items', { ownerDistance: '$ownerDistance' }]
+          }
+        }
+      },
+      // 5. Match against the user's text query
+      {
+        $match: {
+          $and: [
+            { availabilityStatus: 'available' }, // Only show available items
+            {
+              $or: [
+                { name: { $regex: query, $options: 'i' } },
+                { description: { $regex: query, $options: 'i' } }
+              ]
+            }
+          ]
+        }
+      },
+       // 6. Final lookup to populate the owner details back into the item
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'owner',
+          foreignField: '_id',
+          as: 'owner'
+        }
+      },
+      // 7. Deconstruct the owner array
+      {
+        $unwind: '$owner'
+      }
+    ];
+    
+    // We must execute the aggregation on the User model because $geoNear must be the first stage
+    const results = await User.aggregate(searchPipeline as any[]);
+    return results;
   }
 }
