@@ -8,7 +8,8 @@ import {
   getMyProfile,
   updateUserProfile,
   getBorrowingHistory,
-  getLendingHistory
+  getLendingHistory,
+  getUserLentItems
 } from '../controllers/user.controller';
 
 // Import all follow controllers
@@ -42,6 +43,7 @@ router.delete('/:userId/unfollow', protect, unfollow);
 router.get('/:userId/profile', getUserProfile);
 router.get('/:userId/followers', getFollowers);
 router.get('/:userId/following', getFollowing);
+router.get('/:userId/items', getUserLentItems);
 
 
 export default router;

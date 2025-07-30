@@ -57,3 +57,15 @@ export const getLendingHistory = async (req: Request, res: Response) => {
       res.status(500).json({ message: "Failed to retrieve lending history." });
   }
 };
+
+// ... other controller functions
+
+export const getUserLentItems = async (req: Request, res: Response) => {
+  try {
+      const { userId } = req.params;
+      const items = await userService.getLendingHistory(userId); // We can reuse this service
+      res.status(200).json(items);
+  } catch (error) {
+      res.status(500).json({ message: "Failed to retrieve user's items." });
+  }
+};
