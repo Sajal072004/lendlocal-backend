@@ -1,13 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { User, IUser } from '../models/User.model';
+import { ObjectId } from 'mongoose';
 
 // This declaration merging adds the 'user' property to the Express Request type
-declare global {
-  namespace Express {
-    interface Request {
-      user?: User;
-    }
+declare module 'express-serve-static-core' {
+  interface Request {
+    user?: IUser; // The user property will hold the authenticated user
   }
 }
 
