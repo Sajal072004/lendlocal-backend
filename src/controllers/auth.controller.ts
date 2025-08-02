@@ -27,6 +27,11 @@ export const loginUser = async (req: Request, res: Response) => {
     res.cookie('token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
+      sameSite: 'none', // Allow cross-site cookie
+      // The domain should be the parent domain, allowing subdomains.
+      // Replace with your actual frontend's parent domain.
+      domain: process.env.NODE_ENV === 'production' ? '.vercel.app' : undefined,
+      path: '/',
       expires: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
     });
 
@@ -67,6 +72,11 @@ export const googleAuthCallback = (req: Request, res: Response) => {
   res.cookie('token', token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
+    sameSite: 'none', // Allow cross-site cookie
+    // The domain should be the parent domain, allowing subdomains.
+    // Replace with your actual frontend's parent domain.
+    domain: process.env.NODE_ENV === 'production' ? '.vercel.app' : undefined,
+    path: '/',
     expires: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
   });
 
