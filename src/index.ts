@@ -30,11 +30,29 @@ initSocket(server);
 const PORT = process.env.PORT || 8080;
 
 
-app.use(cors({
-  origin: process.env.FRONTEND_URL,
-  methods: ['GET', 'POST', 'PUT', 'DELETE'], 
-  credentials: true
-}));
+// --- REVISED CORS CONFIGURATION ---
+const allowedOrigins = [
+  process.env.FRONTEND_URL as string,
+  'http://localhost:3000'
+];
+
+const corsOptions: cors.CorsOptions = {
+  origin: (origin, callback) => {
+    // The 'origin' can be undefined for server-to-server requests or browser extensions.
+    // We allow these, and we allow any origin in our list.
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true, // This is essential for sending cookies.
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+};
+
+app.use(cors(corsOptions));
+// ------------------------------------
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
