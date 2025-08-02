@@ -24,7 +24,7 @@ export class FollowService {
       sender: followerId,
       type: 'new_follower',
       message: `You have a new follower!`,
-      link: `/users/${followerId}/profile`
+      link: `/user/${followerId}/profile`
   });
   // --------------------
 
