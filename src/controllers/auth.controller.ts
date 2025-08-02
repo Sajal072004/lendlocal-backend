@@ -103,7 +103,7 @@ export const googleAuthCallback = (req: Request, res: Response) => {
 
   // REMOVED: res.cookie(...)
   // ADDED: Redirect with token as a query parameter
-  res.redirect(`${process.env.FRONTEND_URL}/auth/callback?token=${token}`);
+  res.redirect(`${process.env.FRONTEND_URL}/callback?token=${token}`);
 };
 
 // ... other controller functions
