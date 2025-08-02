@@ -11,7 +11,10 @@ export const loginAdmin = async (req: Request, res: Response) => {
     res.cookie('admin_token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      path: '/', // Set cookie path to root
+      sameSite: 'none', // Must be 'none' for cross-site cookies
+      // Ensure your frontend URL is a subdomain of this, e.g., lendlocal-frontend.vercel.app
+      domain: process.env.NODE_ENV === 'production' ? '.vercel.app' : undefined, 
+      path: '/',
       expires: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
     });
 

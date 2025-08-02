@@ -27,10 +27,9 @@ export const loginUser = async (req: Request, res: Response) => {
     res.cookie('token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'none', // Allow cross-site cookie
-      // The domain should be the parent domain, allowing subdomains.
-      // Replace with your actual frontend's parent domain.
-      domain: process.env.NODE_ENV === 'production' ? '.vercel.app' : undefined,
+      sameSite: 'none', // Must be 'none' for cross-site cookies
+      // Ensure your frontend URL is a subdomain of this, e.g., lendlocal-frontend.vercel.app
+      domain: process.env.NODE_ENV === 'production' ? '.vercel.app' : undefined, 
       path: '/',
       expires: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
     });
@@ -50,7 +49,15 @@ export const verifyOtp = async (req: Request, res: Response) => {
     const { token, user } = await authService.verifyOtp(email, otp);
     
     // Set cookie and log the user in automatically upon verification
-    res.cookie('token', token, { /*... cookie options */ });
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'none', // Must be 'none' for cross-site cookies
+      // Ensure your frontend URL is a subdomain of this, e.g., lendlocal-frontend.vercel.app
+      domain: process.env.NODE_ENV === 'production' ? '.vercel.app' : undefined, 
+      path: '/',
+      expires: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
+    });
     res.status(200).json({ status: 'success', user });
   } catch (error) {
     if (error instanceof Error) {
@@ -72,10 +79,9 @@ export const googleAuthCallback = (req: Request, res: Response) => {
   res.cookie('token', token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'none', // Allow cross-site cookie
-    // The domain should be the parent domain, allowing subdomains.
-    // Replace with your actual frontend's parent domain.
-    domain: process.env.NODE_ENV === 'production' ? '.vercel.app' : undefined,
+    sameSite: 'none', // Must be 'none' for cross-site cookies
+    // Ensure your frontend URL is a subdomain of this, e.g., lendlocal-frontend.vercel.app
+    domain: process.env.NODE_ENV === 'production' ? '.vercel.app' : undefined, 
     path: '/',
     expires: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
   });
