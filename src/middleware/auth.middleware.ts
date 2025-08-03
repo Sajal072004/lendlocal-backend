@@ -5,15 +5,6 @@ import { ObjectId } from 'mongoose';
 
 
 
-// Removed duplicate declaration of 'user' property in Express.Request
-
-// This declaration merging adds the 'user' property to the Express Request type
-declare module 'express-serve-static-core' {
-  interface Request {
-    user?: IUser; // The user property will hold the authenticated user
-  }
-}
-
 export const protect = async (req: Request, res: Response, next: NextFunction) => {
   let token;
 
