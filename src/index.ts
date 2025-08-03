@@ -19,6 +19,7 @@ import adminRoutes from './routes/admin.routes';
 import reportRoutes from './routes/report.routes';
 import userRoutes from './routes/user.routes';
 import notificationRoutes from './routes/notification.routes';
+import searchRoutes from './routes/search.routes';
 
 dotenv.config();
 
@@ -69,8 +70,11 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/report', reportRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/search', searchRoutes);
 
-
+app.get('/', (req: Request, res: Response) => {
+  res.send('LendLocal API is running...');
+});
 app.get('/api', (req: Request, res: Response) => {
   res.send('LendLocal API is running...');
 });
