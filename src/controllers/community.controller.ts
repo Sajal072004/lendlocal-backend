@@ -108,3 +108,19 @@ export const respondToCommunityJoinRequest = async (req: Request, res: Response)
     res.status(400).json({ message: (error as Error).message });
   }
 };
+
+
+export const updateCommunity = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const ownerId = req.user!._id;
+    const { name, description } = req.body;
+
+    const updatedCommunity = await communityService.update(id, ownerId.toString(), { name, description });
+    res.status(200).json(updatedCommunity);
+  } catch (error) {
+    const errorMessage = (error as Error).message;
+    const statusCode = errorMessage.includes('authorized') ? 403 : 400;
+    res.status(statusCode).json({ message: errorMessage });
+  }
+};

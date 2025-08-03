@@ -171,6 +171,33 @@ export class CommunityService {
     await request.save();
     return request;
   }
+
+
+  // --- ADD THIS NEW METHOD ---
+  /**
+   * Updates a community's details.
+   * @param communityId The ID of the community to update.
+   * @param ownerId The ID of the user making the request (must be the owner).
+   * @param updates An object containing the new name and/or description.
+   */
+  public async update(communityId: string, ownerId: string, updates: { name?: string; description?: string }): Promise<ICommunity> {
+    const community = await Community.findById(communityId);
+
+    if (!community) {
+      throw new Error('Community not found.');
+    }
+
+    if (community.owner.toString() !== ownerId) {
+      throw new Error('You are not authorized to edit this community.');
+    }
+
+    // Update the fields if they are provided
+    if (updates.name) community.name = updates.name;
+    if (updates.description) community.description = updates.description;
+
+    await community.save();
+    return community;
+  }
   
 
 

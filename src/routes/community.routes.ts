@@ -10,6 +10,7 @@ import {
   getCommunityJoinRequests,
   requestToJoinCommunity,
   respondToCommunityJoinRequest,
+  updateCommunity,
 } from '../controllers/community.controller';
 
 const router = Router();
@@ -27,5 +28,6 @@ router.post('/', protect, createCommunity);
 router.get('/',protect, getUserCommunities);
 router.get('/:id', protect, getCommunityById);
 router.get('/:id/invite-code',protect, getCommunityInviteCode);
+router.put('/:id', protect, updateCommunity);
 
 export default router;
