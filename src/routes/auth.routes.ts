@@ -6,6 +6,8 @@ import {
   googleAuthCallback,
   verifyOtp,
   getSession,
+  forgotPassword,
+  resetPassword,
 } from '../controllers/auth.controller';
 import { protect } from '../middleware/auth.middleware';
 
@@ -26,6 +28,9 @@ router.get(
   passport.authenticate('google', { session: false, failureRedirect: '/login' }),
   googleAuthCallback
 );
+
+router.post('/forgot-password', forgotPassword);
+router.post('/reset-password', resetPassword);
 
 router.get('/session', protect, getSession);
 

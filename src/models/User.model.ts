@@ -31,6 +31,8 @@ export interface IUser extends Document {
   isDisabled: boolean; 
   phoneNumber?: string; 
   address?: IAddress;
+  passwordResetOTP?: string;       
+  passwordResetExpires?: Date;
 }
 
 const UserSchema: Schema = new Schema({
@@ -60,6 +62,8 @@ const UserSchema: Schema = new Schema({
     state: { type: String },
     pinCode: { type: String },
   },
+  passwordResetOTP: { type: String, select: false }, 
+  passwordResetExpires: { type: Date, select: false }, 
 }, { timestamps: true });
 
 // Create a 2dsphere index for efficient geospatial queries

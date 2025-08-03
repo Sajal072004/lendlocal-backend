@@ -138,4 +138,66 @@ export class AuthService {
 
     return { token, user: userObject };
   }
+
+  /**
+   * Generates a password reset OTP, saves it to the user, and sends it via email.
+   */
+  public async forgotPassword(email: string): Promise<void> {
+    const user = await User.findOne({ email });
+    if (!user) {
+      // Don't reveal that the user doesn't exist for security reasons
+      return;
+    }
+
+    // Generate a 6-digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    
+    // Hash the OTP before saving for security
+    const hashedOtp = await bcrypt.hash(otp, 10);
+
+    user.passwordResetOTP = hashedOtp;
+    // Set OTP to expire in 10 minutes
+    user.passwordResetExpires = new Date(Date.now() + 10 * 60 * 1000);
+    await user.save();
+
+    // Send the plain OTP to the user's email
+    try {
+      await sendEmail({
+        to: user.email,
+        subject: 'Your LendLocal Password Reset Code',
+        text: `You requested a password reset. Your verification code is: ${otp}\n\nThis code is valid for 10 minutes.`,
+      });
+    } catch (error) {
+      // If email fails, clear the OTP fields to allow a retry
+      user.passwordResetOTP = undefined;
+      user.passwordResetExpires = undefined;
+      await user.save();
+      throw new Error('Failed to send reset email. Please try again.');
+    }
+  }
+
+  /**
+   * Verifies the OTP and resets the user's password.
+   */
+  public async resetPassword(email: string, otp: string, newPassword: string): Promise<void> {
+    const user = await User.findOne({
+      email,
+      passwordResetExpires: { $gt: Date.now() },
+    }).select('+passwordResetOTP');
+
+    if (!user || !user.passwordResetOTP) {
+      throw new Error('Invalid or expired OTP.');
+    }
+
+    const isMatch = await bcrypt.compare(otp, user.passwordResetOTP);
+    if (!isMatch) {
+      throw new Error('Invalid or expired OTP.');
+    }
+
+    // Reset password and clear OTP fields
+    user.password = newPassword;
+    user.passwordResetOTP = undefined;
+    user.passwordResetExpires = undefined;
+    await user.save();
+  }
 }

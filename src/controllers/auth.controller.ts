@@ -113,3 +113,22 @@ export const getSession = async (req: Request, res: Response) => {
   // If the middleware passes, req.user is guaranteed to be attached.
   res.status(200).json({ user: req.user });
 };
+
+export const forgotPassword = async (req: Request, res: Response) => {
+  try {
+    await authService.forgotPassword(req.body.email);
+    res.status(200).json({ message: 'If a user with that email exists, a reset code has been sent.' });
+  } catch (error) {
+    res.status(500).json({ message: (error as Error).message });
+  }
+};
+
+export const resetPassword = async (req: Request, res: Response) => {
+  try {
+    const { email, otp, newPassword } = req.body;
+    await authService.resetPassword(email, otp, newPassword);
+    res.status(200).json({ message: 'Password has been reset successfully.' });
+  } catch (error) {
+    res.status(400).json({ message: (error as Error).message });
+  }
+};
