@@ -17,3 +17,13 @@ export const createReview = async (req: Request, res: Response) => {
     res.status(400).json({ message: (error as Error).message });
   }
 };
+
+export const getMyReviews = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user!._id;
+    const reviews = await reviewService.getReviewsForUser(userId.toString());
+    res.status(200).json(reviews);
+  } catch (error) {
+    res.status(400).json({ message: (error as Error).message });
+  }
+};

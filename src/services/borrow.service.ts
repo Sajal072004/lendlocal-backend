@@ -1,8 +1,22 @@
 import { BorrowRequest, IBorrowRequest } from '../models/BorrowRequest.model';
 import { Item } from '../models/Item.model';
+import { Review } from '../models/Review.model';
+import { User } from '../models/User.model';
 import { NotificationService } from './notification.service';
 
 const notificationService = new NotificationService();
+
+// Helper function to recalculate reputation score
+const recalculateReputation = async (userId: string) => {
+  const reviews = await Review.find({ reviewee: userId });
+  if (reviews.length === 0) {
+      await User.findByIdAndUpdate(userId, { reputationScore: 5.0 }); // Default score
+      return;
+  }
+  const totalRating = reviews.reduce((acc, review) => acc + review.rating, 0);
+  const averageRating = totalRating / reviews.length;
+  await User.findByIdAndUpdate(userId, { reputationScore: averageRating });
+};
 
 export class BorrowService {
   /**
@@ -151,49 +165,69 @@ export class BorrowService {
     return request;
 }
 
-/**
-     * Initiated by the borrower to mark an item as returned.
-     */
-public async initiateReturn(requestId: string, borrowerId: string): Promise<IBorrowRequest> {
-  const request = await BorrowRequest.findById(requestId);
+ // --- UPDATED initiateReturn ---
+ public async initiateReturn(requestId: string, borrowerId: string, review?: { rating: number; comment: string }): Promise<IBorrowRequest> {
+  const request = await BorrowRequest.findById(requestId).populate('item');
   if (!request) throw new Error('Request not found.');
   if (request.borrower.toString() !== borrowerId) throw new Error('Not authorized.');
   if (request.status !== 'approved') throw new Error('This item has not been approved for borrowing.');
 
   request.status = 'awaiting_confirmation';
+  
+  // If a review for the lender is provided, create it
+  if (review && review.rating) {
+      await Review.create({
+          rating: review.rating,
+          comment: review.comment,
+          reviewer: borrowerId,
+          reviewee: request.lender, // Borrower reviews the lender
+          item: (request.item as any)._id,
+          borrowRequest: requestId
+      });
+      await recalculateReputation(request.lender.toString());
+  }
+
   await request.save();
 
-  const notificationService = new NotificationService();
-
   // Notify the lender
+  const itemDoc = request.item as any;
+  const notificationService = new NotificationService();
   await notificationService.createNotification({
       recipient: request.lender.toString(),
       sender: borrowerId,
       type: 'item_returned',
-      message: `has marked the item as returned. Please confirm you have received it.`,
+      message: `has marked "${itemDoc.name}" as returned. Please confirm you have received it.`,
       link: `/requests/${requestId}`
   });
 
   return request;
 }
 
-/**
-* Initiated by the lender to confirm they have received the item.
-*/
-public async confirmReturn(requestId: string, lenderId: string): Promise<IBorrowRequest> {
+// --- UPDATED confirmReturn ---
+public async confirmReturn(requestId: string, lenderId: string, review?: { rating: number; comment: string }): Promise<IBorrowRequest> {
   const request = await BorrowRequest.findById(requestId);
   if (!request) throw new Error('Request not found.');
   if (request.lender.toString() !== lenderId) throw new Error('Not authorized.');
-  if (request.status !== 'awaiting_confirmation') throw new Error('Return has not been initiated by the borrower.');
+  // if (request.status !== 'awaiting_confirmation') throw new Error('Return has not been initiated by the borrower.');
 
-  // Update request status to 'returned'
   request.status = 'returned';
-  await request.save();
 
-  // Update item availability back to 'available'
+  // If a review for the borrower is provided, create it
+  if (review && review.rating) {
+      await Review.create({
+          rating: review.rating,
+          comment: review.comment,
+          reviewer: lenderId,
+          reviewee: request.borrower, // Lender reviews the borrower
+          item: request.item,
+          borrowRequest: requestId
+      });
+      await recalculateReputation(request.borrower.toString());
+  }
+  
+  await request.save();
   await Item.findByIdAndUpdate(request.item, { availabilityStatus: 'available' });
 
-  // Notify the borrower
   await notificationService.createNotification({
       recipient: request.borrower.toString(),
       sender: lenderId,

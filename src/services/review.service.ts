@@ -56,4 +56,18 @@ export class ReviewService {
     // Update the user's score in the User document
     await User.findByIdAndUpdate(userId, { reputationScore: newScore });
   }
+
+   // --- ADD THIS NEW METHOD ---
+  /**
+   * Gets all reviews for a specific user (where the user is the reviewee).
+   * @param userId The ID of the user whose reviews are to be fetched.
+   */
+  public async getReviewsForUser(userId: string): Promise<IReview[]> {
+    const reviews = await Review.find({ reviewee: userId })
+      .populate('reviewer', 'name profilePicture') // Get reviewer's info
+      .populate('item', 'name photos') // Get item's info
+      .sort({ createdAt: -1 }); // Show latest reviews first
+
+    return reviews;
+  }
 }
