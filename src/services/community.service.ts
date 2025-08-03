@@ -88,9 +88,15 @@ export class CommunityService {
    * Finds all communities, intended for a public Browse page.
    */
   public async findAll(): Promise<ICommunity[]> {
-    // We can add pagination here in the future if needed
-    return Community.find().select('name description members');
+    const communities = await Community.find().select('name description members').lean();
+  
+    return communities.map((community) => ({
+      ...community,
+      memberCount: community.members?.length || 0,
+      members: community.members, // optional: explicitly remove the array
+    }));
   }
+  
 
 
   
