@@ -1,6 +1,7 @@
 import { Item, IItem } from '../models/Item.model';
 import { Community } from '../models/Community.model';
 import { User } from '../models/User.model';
+import { BorrowRequest } from '../models/BorrowRequest.model';
 
 interface ICreateItemData {
   name: string;
@@ -74,22 +75,7 @@ export class ItemService {
     return Item.findByIdAndUpdate(itemId, updateData, { new: true });
   }
   
-  /**
-   * Deletes an item.
-   */
-  public async delete(itemId: string, userId: string): Promise<void> {
-    const item = await Item.findById(itemId);
-    if (!item) {
-      throw new Error('Item not found.');
-    }
-
-    // Ensure the user trying to delete the item is its owner.
-    if (item.owner.toString() !== userId) {
-      throw new Error('You are not authorized to delete this item.');
-    }
-
-    await Item.findByIdAndDelete(itemId);
-  }
+  
 
   // lendlocal-backend/src/services/item.service.ts
 
@@ -195,4 +181,33 @@ export class ItemService {
           .populate('owner', 'name profilePicture')
           .sort({ createdAt: -1 }); // Sort by newest first
   }
+
+  /**
+     * Deletes an item if the requester is the owner.
+     * Also deletes any pending borrow requests for that item.
+     * @param itemId The ID of the item to delete.
+     * @param userId The ID of the user attempting to delete the item.
+     */
+  public async delete(itemId: string, userId: string): Promise<void> {
+    const item = await Item.findById(itemId);
+
+    if (!item) {
+        throw new Error('Item not found.');
+    }
+
+    if (item.owner.toString() !== userId) {
+        throw new Error('You are not authorized to delete this item.');
+    }
+    
+    // Prevent deletion if the item is currently borrowed
+    if (item.availabilityStatus === 'borrowed') {
+        throw new Error('Cannot delete an item that is currently borrowed.');
+    }
+
+    // Delete the item itself
+    await Item.findByIdAndDelete(itemId);
+
+    // Also, delete any pending borrow requests associated with this item
+    await BorrowRequest.deleteMany({ item: itemId, status: 'pending' });
+}
 }

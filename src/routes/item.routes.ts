@@ -24,4 +24,5 @@ router.get('/search', searchAllItems);
 router.get('/all', getAllItems);
 router.get('/:id', protect, getItemById);
 
+
 export default router;
