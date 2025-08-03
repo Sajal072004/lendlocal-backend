@@ -151,6 +151,60 @@ export class BorrowService {
     return request;
 }
 
+/**
+     * Initiated by the borrower to mark an item as returned.
+     */
+public async initiateReturn(requestId: string, borrowerId: string): Promise<IBorrowRequest> {
+  const request = await BorrowRequest.findById(requestId);
+  if (!request) throw new Error('Request not found.');
+  if (request.borrower.toString() !== borrowerId) throw new Error('Not authorized.');
+  if (request.status !== 'approved') throw new Error('This item has not been approved for borrowing.');
+
+  request.status = 'awaiting_confirmation';
+  await request.save();
+
+  const notificationService = new NotificationService();
+
+  // Notify the lender
+  await notificationService.createNotification({
+      recipient: request.lender.toString(),
+      sender: borrowerId,
+      type: 'item_returned',
+      message: `has marked the item as returned. Please confirm you have received it.`,
+      link: `/requests/${requestId}`
+  });
+
+  return request;
+}
+
+/**
+* Initiated by the lender to confirm they have received the item.
+*/
+public async confirmReturn(requestId: string, lenderId: string): Promise<IBorrowRequest> {
+  const request = await BorrowRequest.findById(requestId);
+  if (!request) throw new Error('Request not found.');
+  if (request.lender.toString() !== lenderId) throw new Error('Not authorized.');
+  if (request.status !== 'awaiting_confirmation') throw new Error('Return has not been initiated by the borrower.');
+
+  // Update request status to 'returned'
+  request.status = 'returned';
+  await request.save();
+
+  // Update item availability back to 'available'
+  await Item.findByIdAndUpdate(request.item, { availabilityStatus: 'available' });
+
+  // Notify the borrower
+  await notificationService.createNotification({
+      recipient: request.borrower.toString(),
+      sender: lenderId,
+      type: 'return_confirmed',
+      message: `has confirmed the return of the item.`,
+      link: `/requests/${requestId}`
+  });
+
+  return request;
+}
+
   /**
    * Allows a borrower to mark an item as returned.
    */

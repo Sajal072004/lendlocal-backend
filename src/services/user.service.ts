@@ -1,4 +1,5 @@
 import { BorrowRequest } from '../models/BorrowRequest.model';
+import { Follow } from '../models/Follow.model';
 import { Item } from '../models/Item.model';
 import { User, IUser } from '../models/User.model';
 
@@ -23,14 +24,28 @@ export class UserService {
    * @param userId The ID of the user whose profile to fetch.
    */
   public async getProfileById(userId: string): Promise<any> {
-    // Select more fields to make the profile richer
     const user = await User.findById(userId).select(
-      'name profilePicture reputationScore createdAt address.city address.state' // <-- ADDED city and state
+      'name profilePicture reputationScore createdAt address' // Keep address object
     );
     if (!user) {
       throw new Error('User not found.');
     }
-    return user;
+
+    // Perform counts in parallel for efficiency
+    const [followerCount, transactionCount] = await Promise.all([
+      Follow.countDocuments({ following: userId }),
+      BorrowRequest.countDocuments({
+        $or: [{ borrower: userId }, { lender: userId }],
+        status: 'returned' 
+      })
+    ]);
+
+    // Return a combined object
+    return {
+      ...user.toObject(),
+      followerCount,
+      transactionCount
+    };
   }
   /**
    * Updates a user's own profile information.

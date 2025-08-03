@@ -3,7 +3,7 @@ import { IItem } from './Item.model';
 import { IUser } from './User.model';
 
 // Type definition for status
-export type RequestStatus = 'pending' | 'approved' | 'denied' | 'returned' | 'cancelled';
+export type RequestStatus = 'pending' | 'approved' | 'denied' | 'returned' | 'cancelled'| 'awaiting_confirmation' | 'return_confirmed';
 
 // Interface for type safety
 export interface IBorrowRequest extends Document {
@@ -19,7 +19,7 @@ const BorrowRequestSchema: Schema = new Schema({
   item: { type: Schema.Types.ObjectId, ref: 'Item', required: true },
   borrower: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   lender: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-  status: { type: String, enum: ['pending', 'approved', 'denied', 'returned', 'cancelled'], default: 'pending' },
+  status: { type: String, enum: ['pending', 'approved', 'denied', 'returned', 'cancelled','awaiting_confirmation','return_confirmed'], default: 'pending' },
   requestDate: { type: Date, default: Date.now },
   returnDate: { type: Date },
 }, { timestamps: true });

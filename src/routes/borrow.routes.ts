@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { protect } from '../middleware/auth.middleware';
-import { getRequestById, getRequests, requestItem, respondToRequest, returnItem } from '../controllers/borrow.controller';
+import { confirmReturn, getRequestById, getRequests, initiateReturn, requestItem, respondToRequest, returnItem } from '../controllers/borrow.controller';
 
 const router = Router();
 
@@ -12,5 +12,8 @@ router.post('/respond/:requestId', respondToRequest);
 router.get('/requests', getRequests);
 router.get('/requests/:id', getRequestById);
 router.post('/return/:requestId', returnItem);
+
+router.post('/requests/:id/return', initiateReturn);
+router.post('/requests/:id/confirm-return', confirmReturn);
 
 export default router;

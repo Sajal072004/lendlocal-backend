@@ -9,7 +9,9 @@ export type NotificationType =
     | 'new_offer'
     | 'offer_accepted'
     | 'new_follower'
-    | 'new_message';
+    | 'new_message'
+    | 'return_confirmed'
+    
 
 export interface INotification extends Document {
   recipient: IUser['_id'];

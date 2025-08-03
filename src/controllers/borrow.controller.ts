@@ -66,3 +66,25 @@ export const getRequestById = async (req: Request, res: Response) => {
       res.status(statusCode).json({ message: errorMessage });
   }
 };
+
+export const initiateReturn = async (req: Request, res: Response) => {
+  try {
+      const { id } = req.params;
+      const userId = req.user!._id;
+      await borrowService.initiateReturn(id, userId.toString());
+      res.status(200).json({ message: 'Return initiated. Awaiting lender confirmation.' });
+  } catch (error) {
+      res.status(400).json({ message: (error as Error).message });
+  }
+};
+
+export const confirmReturn = async (req: Request, res: Response) => {
+  try {
+      const { id } = req.params;
+      const userId = req.user!._id;
+      await borrowService.confirmReturn(id, userId.toString());
+      res.status(200).json({ message: 'Return confirmed successfully.' });
+  } catch (error) {
+      res.status(400).json({ message: (error as Error).message });
+  }
+};
