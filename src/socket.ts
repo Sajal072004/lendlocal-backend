@@ -29,7 +29,7 @@ export const initSocket = (httpServer: HttpServer) => {
     });
 
     socket.on('disconnect', () => {
-      console.log('🔥 A user disconnected:', socket.id);
+      
     });
   });
 
