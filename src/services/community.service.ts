@@ -70,4 +70,20 @@ export class CommunityService {
     
     return community;
   }
+
+  /**
+   * Gets the invite code for a community, ensuring the user is a member.
+   */
+  public async getInviteCode(communityId: string, userId: string): Promise<string> {
+    const community = await Community.findOne({ _id: communityId, members: userId });
+
+    if (!community) {
+      throw new Error('Community not found or you are not a member.');
+    }
+
+    return community.inviteCode;
+  }
+
+
+  
 }

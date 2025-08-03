@@ -5,6 +5,7 @@ import {
   joinCommunity,
   getUserCommunities,
   getCommunityById,
+  getCommunityInviteCode,
 } from '../controllers/community.controller';
 
 const router = Router();
@@ -17,5 +18,6 @@ router.post('/join', joinCommunity);
 router.post('/', createCommunity);
 router.get('/', getUserCommunities);
 router.get('/:id', getCommunityById);
+router.get('/:id/invite-code', getCommunityInviteCode);
 
 export default router;
