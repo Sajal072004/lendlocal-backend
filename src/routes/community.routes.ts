@@ -6,9 +6,12 @@ import {
   getUserCommunities,
   getCommunityById,
   getCommunityInviteCode,
+  getAllCommunities,
 } from '../controllers/community.controller';
 
 const router = Router();
+
+router.get('/all', protect, getAllCommunities);
 
 // Apply the 'protect' middleware to all routes in this file
 router.use(protect);

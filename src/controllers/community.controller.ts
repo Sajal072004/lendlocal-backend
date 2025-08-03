@@ -64,3 +64,12 @@ export const getCommunityInviteCode = async (req: Request, res: Response) => {
     res.status(statusCode).json({ message: errorMessage });
   }
 };
+
+export const getAllCommunities = async (req: Request, res: Response) => {
+  try {
+    const communities = await communityService.findAll();
+    res.status(200).json(communities);
+  } catch (error) {
+    res.status(400).json({ message: (error as Error).message });
+  }
+};

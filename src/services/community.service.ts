@@ -84,6 +84,14 @@ export class CommunityService {
     return community.inviteCode;
   }
 
+  /**
+   * Finds all communities, intended for a public Browse page.
+   */
+  public async findAll(): Promise<ICommunity[]> {
+    // We can add pagination here in the future if needed
+    return Community.find().select('name description members');
+  }
+
 
   
 }
