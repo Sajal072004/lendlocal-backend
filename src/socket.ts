@@ -13,7 +13,7 @@ export const initSocket = (httpServer: HttpServer) => {
   });
 
   io.on('connection', (socket: Socket) => {
-    console.log('🔌 A user connected:', socket.id);
+    
 
     // --- ADD THIS ---
     // Have user join a room based on their own userId
