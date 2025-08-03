@@ -3,6 +3,10 @@ import jwt from 'jsonwebtoken';
 import { User, IUser } from '../models/User.model';
 import { ObjectId } from 'mongoose';
 
+
+
+// Removed duplicate declaration of 'user' property in Express.Request
+
 // This declaration merging adds the 'user' property to the Express Request type
 declare module 'express-serve-static-core' {
   interface Request {
