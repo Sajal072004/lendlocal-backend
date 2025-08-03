@@ -20,6 +20,8 @@ import reportRoutes from './routes/report.routes';
 import userRoutes from './routes/user.routes';
 import notificationRoutes from './routes/notification.routes';
 import searchRoutes from './routes/search.routes';
+import cron from 'node-cron';
+import axios from 'axios';
 
 dotenv.config();
 
@@ -81,4 +83,14 @@ app.get('/api', (req: Request, res: Response) => {
 
 server.listen(PORT, () => {
   console.log(`🚀 Server is running on port ${PORT}`);
+});
+
+// Schedule a task to run every 12 minutes
+cron.schedule('*/12 * * * *', async () => {
+  try {
+    const response = await axios.get('https://lendlocal-backend.onrender.com/api');
+    console.log('Cron job executed successfully:', response.data);
+  } catch (error) {
+    console.error('Error executing cron job:');
+  }
 });
