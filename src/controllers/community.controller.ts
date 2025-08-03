@@ -67,8 +67,43 @@ export const getCommunityInviteCode = async (req: Request, res: Response) => {
 
 export const getAllCommunities = async (req: Request, res: Response) => {
   try {
-    const communities = await communityService.findAll();
+    const userId = req.user!._id; // Get user ID from protect middleware
+    const communities = await communityService.findAll(userId.toString());
     res.status(200).json(communities);
+  } catch (error) {
+    res.status(400).json({ message: (error as Error).message });
+  }
+};
+
+export const requestToJoinCommunity = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user!._id;
+    await communityService.requestToJoin(id, userId.toString());
+    res.status(200).json({ message: 'Request to join sent successfully.' });
+  } catch (error) {
+    res.status(400).json({ message: (error as Error).message });
+  }
+};
+
+export const getCommunityJoinRequests = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user!._id;
+    const requests = await communityService.getJoinRequests(id, userId.toString());
+    res.status(200).json(requests);
+  } catch (error) {
+    res.status(403).json({ message: (error as Error).message });
+  }
+};
+
+export const respondToCommunityJoinRequest = async (req: Request, res: Response) => {
+  try {
+    const { requestId } = req.params;
+    const { response } = req.body; // 'approve' or 'reject'
+    const userId = req.user!._id;
+    await communityService.respondToJoinRequest(requestId, userId.toString(), response);
+    res.status(200).json({ message: 'Response recorded.' });
   } catch (error) {
     res.status(400).json({ message: (error as Error).message });
   }

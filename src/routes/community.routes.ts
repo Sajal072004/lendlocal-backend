@@ -7,20 +7,25 @@ import {
   getCommunityById,
   getCommunityInviteCode,
   getAllCommunities,
+  getCommunityJoinRequests,
+  requestToJoinCommunity,
+  respondToCommunityJoinRequest,
 } from '../controllers/community.controller';
 
 const router = Router();
 
 router.get('/all', protect, getAllCommunities);
 
-// Apply the 'protect' middleware to all routes in this file
-router.use(protect);
+
+router.post('/:id/request-join', protect, requestToJoinCommunity);
+router.get('/:id/join-requests', protect, getCommunityJoinRequests);
+router.post('/join-requests/:requestId/respond', protect, respondToCommunityJoinRequest);
 
 
-router.post('/join', joinCommunity);
-router.post('/', createCommunity);
-router.get('/', getUserCommunities);
-router.get('/:id', getCommunityById);
-router.get('/:id/invite-code', getCommunityInviteCode);
+router.post('/join', protect, joinCommunity);
+router.post('/', protect, createCommunity);
+router.get('/',protect, getUserCommunities);
+router.get('/:id', protect, getCommunityById);
+router.get('/:id/invite-code',protect, getCommunityInviteCode);
 
 export default router;

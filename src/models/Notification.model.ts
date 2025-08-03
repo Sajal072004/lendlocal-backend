@@ -11,6 +11,7 @@ export type NotificationType =
     | 'new_follower'
     | 'new_message'
     | 'return_confirmed'
+    | 'new_join_request'
     
 
 export interface INotification extends Document {

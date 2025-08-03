@@ -1,5 +1,7 @@
 import { Community, ICommunity } from '../models/Community.model';
+import { IJoinRequest, JoinRequest } from '../models/JoinRequestModel';
 import { User } from '../models/User.model';
+import { NotificationService } from './notification.service';
 
 
 export class CommunityService {
@@ -53,22 +55,28 @@ export class CommunityService {
     return Community.find({ members: userId });
   }
 
-  /**
-   * Finds a single community by its ID, ensuring the user is a member.
-   */
-  public async findById(communityId: string, userId: string): Promise<ICommunity | null> {
-    const community = await Community.findById(communityId).populate('members', 'name profilePicture');
+  public async findById(communityId: string, userId: string): Promise<any> {
+    const community = await Community.findById(communityId)
+      .populate('members', 'name profilePicture')
+      .lean(); 
 
     if (!community) {
       throw new Error('Community not found.');
     }
-    
-    // 3. This check is correct because 'members' is populated. No change needed here.
-    if (!community.members.some(member => (member as any)._id.toString() === userId)) {
-        throw new Error('Not authorized to view this community.');
-    }
-    
-    return community;
+
+    const pendingRequest = await JoinRequest.findOne({
+      community: communityId,
+      user: userId,
+      status: 'pending'
+    });
+
+    const result = {
+      ...community,
+      isMember: community.members.some(member => (member as any)._id.toString() === userId),
+      hasPendingRequest: !!pendingRequest
+    };
+
+    return result;
   }
 
   /**
@@ -84,17 +92,84 @@ export class CommunityService {
     return community.inviteCode;
   }
 
-  /**
-   * Finds all communities, intended for a public Browse page.
+ /**
+   * Finds all communities and enriches them with user-specific join request status.
    */
-  public async findAll(): Promise<ICommunity[]> {
-    const communities = await Community.find().select('name description members').lean();
-  
-    return communities.map((community) => ({
-      ...community,
-      memberCount: community.members?.length || 0,
-      members: community.members, // optional: explicitly remove the array
-    }));
+ public async findAll(userId: string): Promise<any[]> {
+  const communities = await Community.find()
+    .select('name description members owner')
+    .lean(); // Use lean for better performance and easier modification
+
+  // Get all pending requests for the current user
+  const userPendingRequests = await JoinRequest.find({
+    user: userId,
+    status: 'pending'
+  }).select('community');
+
+  const pendingRequestCommunityIds = new Set(
+    userPendingRequests.map(req => (req.community as any).toString())
+  );
+
+  // Add a 'hasPendingRequest' flag to each community object
+  const results = communities.map(community => ({
+    ...community,
+    memberCount: community.members.length,
+    hasPendingRequest: pendingRequestCommunityIds.has(community._id.toString()),
+  }));
+
+  return results;
+}
+
+
+  public async requestToJoin(communityId: string, userId: string): Promise<IJoinRequest> {
+    const community = await Community.findById(communityId);
+    if (!community) throw new Error('Community not found.');
+
+    const isMember = community.members.some(memberId => memberId.toString() === userId);
+    if (isMember) throw new Error('You are already a member of this community.');
+
+    const joinRequest = await JoinRequest.create({ community: communityId, user: userId });
+
+    const notificationService = new NotificationService();
+
+    await notificationService.createNotification({
+        recipient: community.owner.toString(),
+        sender: userId,
+        type: 'new_join_request',
+        message: `has requested to join your community "${community.name}".`,
+        link: `/community/${communityId}`
+    });
+
+    return joinRequest;
+  }
+
+  public async getJoinRequests(communityId: string, ownerId: string): Promise<IJoinRequest[]> {
+    const community = await Community.findById(communityId);
+    if (!community || community.owner.toString() !== ownerId) {
+        throw new Error('Not authorized to view join requests.');
+    }
+    return JoinRequest.find({ community: communityId, status: 'pending' }).populate('user', 'name profilePicture');
+  }
+
+  public async respondToJoinRequest(requestId: string, ownerId: string, response: 'approve' | 'reject'): Promise<IJoinRequest> {
+    const request = await JoinRequest.findById(requestId).populate('community');
+    if (!request) throw new Error('Request not found.');
+    
+    const community = request.community as unknown as ICommunity;
+    if (community.owner.toString() !== ownerId) {
+        throw new Error('Not authorized to respond to this request.');
+    }
+
+    if (response === 'approve') {
+        request.status = 'approved';
+        await Community.findByIdAndUpdate(community._id, { $addToSet: { members: request.user } });
+        await User.findByIdAndUpdate(request.user, { $addToSet: { communities: community._id } });
+    } else {
+        request.status = 'rejected';
+    }
+
+    await request.save();
+    return request;
   }
   
 
