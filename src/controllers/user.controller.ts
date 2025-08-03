@@ -69,3 +69,13 @@ export const getUserLentItems = async (req: Request, res: Response) => {
       res.status(500).json({ message: "Failed to retrieve user's items." });
   }
 };
+
+export const getAllUsers = async (req: Request, res: Response) => {
+  try {
+    const currentUserId = req.user!._id;
+    const users = await userService.findAllUsers(currentUserId.toString());
+    res.status(200).json(users);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to retrieve users." });
+  }
+};

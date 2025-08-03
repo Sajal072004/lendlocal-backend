@@ -184,4 +184,15 @@ export class ItemService {
     
     return item;
   }
+
+  // --- ADD THIS NEW METHOD ---
+    /**
+     * Finds all items across all communities.
+     * Intended for the main search/explore page.
+     */
+    public async findAll(): Promise<IItem[]> {
+      return Item.find({})
+          .populate('owner', 'name profilePicture')
+          .sort({ createdAt: -1 }); // Sort by newest first
+  }
 }

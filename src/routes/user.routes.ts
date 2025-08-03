@@ -9,7 +9,8 @@ import {
   updateUserProfile,
   getBorrowingHistory,
   getLendingHistory,
-  getUserLentItems
+  getUserLentItems,
+  getAllUsers
 } from '../controllers/user.controller';
 
 // Import all follow controllers
@@ -33,6 +34,7 @@ router.put(
 router.get('/history/borrowed', protect, getBorrowingHistory);
 router.get('/history/lent', protect, getLendingHistory);
 
+router.get('/all', protect, getAllUsers);
 
 // --- Follow / Unfollow (requires login) ---
 router.post('/:userId/follow', protect, follow);

@@ -91,4 +91,9 @@ export class UserService {
       })
       .sort({ createdAt: -1 });
   }
+
+  public async findAllUsers(currentUserId: string): Promise<any> {
+    // Find all users except the one making the request
+    return User.find({ _id: { $ne: currentUserId } }).select('name profilePicture');
+  }
 }
