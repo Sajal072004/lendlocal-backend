@@ -1,7 +1,7 @@
 import { BorrowRequest } from '../models/BorrowRequest.model';
 import { Follow } from '../models/Follow.model';
 import { Item } from '../models/Item.model';
-import { User, IUser } from '../models/User.model';
+import { User, IUser, INotificationPreferences } from '../models/User.model';
 
 // Interface for the data that can be updated
 interface IUpdateProfileData {
@@ -96,4 +96,32 @@ export class UserService {
     // Find all users except the one making the request
     return User.find({ _id: { $ne: currentUserId } }).select('name profilePicture');
   }
+
+  public async updateNotificationPreferences(userId: string, preferences: INotificationPreferences): Promise<IUser> {
+    const user = await User.findById(userId);
+    if (!user) {
+        throw new Error('User not found.');
+    }
+
+    // Update the preferences
+    user.notificationPreferences = {
+        ...user.notificationPreferences,
+        ...preferences,
+    };
+
+    await user.save();
+    return user;
+}
+
+public async updateEmailNotificationPreferences(userId: string, preferences: INotificationPreferences): Promise<IUser> {
+  const user = await User.findByIdAndUpdate(
+      userId,
+      { $set: { emailNotificationPreferences: preferences } },
+      { new: true }
+  );
+  if (!user) {
+      throw new Error('User not found.');
+  }
+  return user;
+}
 }

@@ -79,3 +79,26 @@ export const getAllUsers = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Failed to retrieve users." });
   }
 };
+
+// --- ADD THIS NEW CONTROLLER FUNCTION ---
+export const updateNotificationPreferences = async (req: Request, res: Response) => {
+  try {
+      const userId = req.user!._id;
+      const preferences = req.body;
+      await userService.updateNotificationPreferences(userId.toString(), preferences);
+      res.status(200).json({ message: 'Notification preferences updated successfully.' });
+  } catch (error) {
+      res.status(400).json({ message: (error as Error).message });
+  }
+};
+
+export const updateEmailNotificationPreferences = async (req: Request, res: Response) => {
+  try {
+      const userId = req.user!._id;
+      const preferences = req.body;
+      await userService.updateEmailNotificationPreferences(userId.toString(), preferences);
+      res.status(200).json({ message: 'Email notification preferences updated successfully.' });
+  } catch (error) {
+      res.status(400).json({ message: (error as Error).message });
+  }
+};

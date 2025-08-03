@@ -28,41 +28,41 @@ export class NotificationService {
     /**
      * Creates a notification and emits a real-time event to the recipient.
      */
-    public async createNotification(data: INotificationData): Promise<INotification> {
+   /**
+     * Creates a notification for the website and conditionally sends an email based on user preferences.
+     */
+   public async createNotification(data: INotificationData): Promise<INotification & { sender: { name: string; profilePicture: string } }> {
+    const recipientUser = await User.findById(data.recipient).select('+emailNotificationPreferences');
+    if (!recipientUser) {
+        throw new Error("Recipient user not found.");
+    }
+    
+    // 1. Always create the notification record for the website.
+    const notification = await Notification.create(data);
+    const populatedNotification = await notification.populate('sender', 'name profilePicture') as unknown as INotification & { sender: { name: string; profilePicture: string } };
 
-        // --- ADD THIS BLOCK TO FETCH RECIPIENT ---
-        const recipientUser = await User.findById(data.recipient);
-        if (!recipientUser) {
-            // If the recipient doesn't exist, we can't send a notification
-            throw new Error("Recipient user not found.");
-        }
-        // ------------------------------------------
+    // 2. Always emit the real-time event to update the website UI.
+    io.to(data.recipient).emit('new_notification', populatedNotification);
 
-
-        // 1. Save the notification to the database
-        const notification = await Notification.create(data);
-        const populatedNotification = await notification.populate('sender', 'name profilePicture');
-
-        // 2. Emit a 'notification' event to the recipient's personal room
-        io.to(data.recipient).emit('new_notification', populatedNotification);
-
-
-        // --- ADD THIS BLOCK TO SEND EMAIL ---
+    // 3. Check the user's EMAIL preferences before sending an email.
+    const emailPreferenceKey = data.type as keyof typeof recipientUser.emailNotificationPreferences;
+    if (recipientUser.emailNotificationPreferences[emailPreferenceKey] !== false) {
         try {
           await sendEmail({
               to: recipientUser.email,
               subject: `New Notification on LendLocal: ${this.getSubjectForType(data.type)}`,
-              text: `Hi ${recipientUser.name},\n\n${data.message}\n\nYou can view it here: ${process.env.FRONTEND_URL}${data.link}\n\nThanks,\nThe LendLocal Team`
+              text: `Hi ${recipientUser.name},\n\nYou have a new notification: ${populatedNotification.sender.name} ${data.message}\n\nYou can view it here: ${process.env.FRONTEND_URL}${data.link}\n\nThanks,\nThe LendLocal Team`
           });
-      } catch (error) {
+        } catch (error) {
           console.error("Failed to send notification email:", error);
-          // We don't throw an error here because the primary notification (socket/db) succeeded.
-          // In a production app, you might add this to a retry queue.
-      }
-      // ------------------------------------
-
-        return populatedNotification;
+          // We don't throw an error here because the main notification (on-site) was still successful.
+        }
     }
+
+    // 4. Always return the created notification object.
+    return populatedNotification;
+}
+
 
     /**
      * Gets all notifications for a specific user.

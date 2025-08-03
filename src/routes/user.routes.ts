@@ -10,7 +10,9 @@ import {
   getBorrowingHistory,
   getLendingHistory,
   getUserLentItems,
-  getAllUsers
+  getAllUsers,
+  updateNotificationPreferences,
+  updateEmailNotificationPreferences
 } from '../controllers/user.controller';
 
 // Import all follow controllers
@@ -39,6 +41,9 @@ router.get('/all', protect, getAllUsers);
 // --- Follow / Unfollow (requires login) ---
 router.post('/:userId/follow', protect, follow);
 router.delete('/:userId/unfollow', protect, unfollow);
+
+router.put('/profile/notification-preferences', protect, updateNotificationPreferences);
+router.put('/profile/email-notification-preferences', protect, updateEmailNotificationPreferences);
 
 
 // --- Public Routes (do not require login) ---
