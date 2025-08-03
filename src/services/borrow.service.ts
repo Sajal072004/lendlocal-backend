@@ -126,6 +126,32 @@ export class BorrowService {
   }
 
   /**
+     * Finds a single borrow request by its ID.
+     * Ensures the user viewing is either the borrower or the lender.
+     * @param requestId The ID of the borrow request.
+     * @param userId The ID of the user making the request.
+     */
+  public async findBorrowRequestById(requestId: string, userId: string): Promise<IBorrowRequest> {
+    const request = await BorrowRequest.findById(requestId)
+        .populate('item', 'name photos owner')
+        .populate('borrower', 'name profilePicture')
+        .populate('lender', 'name profilePicture');
+
+    if (!request) {
+        throw new Error('Borrow request not found.');
+    }
+
+    const isBorrower = request.borrower._id.toString() === userId;
+    const isLender = request.lender._id.toString() === userId;
+
+    if (!isBorrower && !isLender) {
+        throw new Error('You are not authorized to view this request.');
+    }
+
+    return request;
+}
+
+  /**
    * Allows a borrower to mark an item as returned.
    */
   public async returnItem(
