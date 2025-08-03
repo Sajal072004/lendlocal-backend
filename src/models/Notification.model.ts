@@ -27,7 +27,7 @@ export interface INotification extends Document {
 const NotificationSchema: Schema = new Schema({
   recipient: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   sender: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-  type: { type: String, enum: ['new_borrow_request', 'request_approved', 'request_denied', 'item_returned', 'new_offer', 'offer_accepted', 'new_follower', 'new_message','new_item_request'], required: true },
+  type: { type: String, enum: ['new_borrow_request', 'request_approved', 'request_denied', 'item_returned', 'new_offer', 'offer_accepted', 'new_follower', 'new_message','new_item_request','return_confirmed'], required: true },
   message: { type: String, required: true },
   link: { type: String, required: true },
   isRead: { type: Boolean, default: false },
