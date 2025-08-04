@@ -99,8 +99,12 @@ public async createNotification(data: INotificationData): Promise<INotification 
   // 3. Check the user's EMAIL preferences before sending an email.
   const emailPreferenceKey = data.type as keyof typeof recipientUser.emailNotificationPreferences;
   
+console.log("Checking email preferences for notification type:", data.type);
+console.log("User's email preferences:", recipientUser.emailNotificationPreferences[emailPreferenceKey]);
   
   if (recipientUser.emailNotificationPreferences[emailPreferenceKey] !== false) {
+
+        console.log("User has email notifications enabled for type:", data.type);
       
       try {
           // Extract item name from the message or data if available

@@ -2,7 +2,9 @@
 import { Server as HttpServer } from 'http';
 import { Server, Socket } from 'socket.io';
 
-export let io: Server;
+let io: Server;
+
+const activeChats: Record<string, string> = {};
 
 export const initSocket = (httpServer: HttpServer) => {
   io = new Server(httpServer, {
@@ -28,10 +30,26 @@ export const initSocket = (httpServer: HttpServer) => {
       console.log(`User ${socket.id} joined conversation ${conversationId}`);
     });
 
+    socket.on('startViewingChat', (conversationId: string) => {
+      // Find which user this socket belongs to
+      const userId = Object.keys(activeChats).find(key => activeChats[key] === socket.id);
+      if (userId) {
+          activeChats[userId] = conversationId;
+      }
+  });
+
+  socket.on('stopViewingChat', () => {
+      const userId = Object.keys(activeChats).find(key => activeChats[key] === socket.id);
+      if (userId) {
+          delete activeChats[userId];
+      }
+  });
+
     socket.on('disconnect', () => {
       
     });
   });
 
-  return io;
 };
+
+export { io, activeChats };
