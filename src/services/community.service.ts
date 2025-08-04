@@ -97,14 +97,14 @@ export class CommunityService {
    */
  public async findAll(userId: string): Promise<any[]> {
   const communities = await Community.find()
-    .select('name description members owner')
+    .select('name description members owner').sort({ createdAt: -1 })
     .lean(); // Use lean for better performance and easier modification
 
   // Get all pending requests for the current user
   const userPendingRequests = await JoinRequest.find({
     user: userId,
     status: 'pending'
-  }).select('community');
+  }).select('community').sort({ createdAt: -1 });
 
   const pendingRequestCommunityIds = new Set(
     userPendingRequests.map(req => (req.community as any).toString())
@@ -148,7 +148,7 @@ export class CommunityService {
     if (!community || community.owner.toString() !== ownerId) {
         throw new Error('Not authorized to view join requests.');
     }
-    return JoinRequest.find({ community: communityId, status: 'pending' }).populate('user', 'name profilePicture');
+    return JoinRequest.find({ community: communityId, status: 'pending' }).populate('user', 'name profilePicture').sort({ createdAt: -1 });
   }
 
   public async respondToJoinRequest(requestId: string, ownerId: string, response: 'approve' | 'reject'): Promise<IJoinRequest> {

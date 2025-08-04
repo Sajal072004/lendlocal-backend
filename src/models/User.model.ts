@@ -104,7 +104,7 @@ const UserSchema: Schema = new Schema({
     new_offer: { type: Boolean, default: true },
     offer_accepted: { type: Boolean, default: true },
     new_follower: { type: Boolean, default: true },
-    new_message: { type: Boolean, default: true },
+    new_message: { type: Boolean, default: false },
   },
 }, { timestamps: true });
 

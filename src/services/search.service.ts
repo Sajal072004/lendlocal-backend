@@ -23,12 +23,12 @@ export class SearchService {
 
     // Perform searches in parallel
     const [items, communities, users] = await Promise.all([
-      Item.find({ name: regex }).populate('owner', 'name profilePicture').limit(5),
-      Community.find({ name: regex }).limit(5),
+      Item.find({ name: regex }).populate('owner', 'name profilePicture'),
+      Community.find({ name: regex }),
       User.find({ 
         name: regex, 
         _id: { $ne: currentUserId } // Exclude the current user from results
-      }).select('name profilePicture').limit(5)
+      }).select('name profilePicture')
     ]);
 
     // Format results with their type

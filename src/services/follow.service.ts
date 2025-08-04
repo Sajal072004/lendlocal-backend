@@ -50,7 +50,7 @@ export class FollowService {
    * @param userId The user whose followers to find.
    */
   public async getFollowers(userId: string): Promise<any> {
-    return Follow.find({ following: userId }).populate('follower', 'name profilePicture');
+    return Follow.find({ following: userId }).populate('follower', 'name profilePicture').sort({ createdAt: -1 });
   }
 
   /**
@@ -58,6 +58,6 @@ export class FollowService {
    * @param userId The user whose followed accounts to find.
    */
   public async getFollowing(userId: string): Promise<any> {
-    return Follow.find({ follower: userId }).populate('following', 'name profilePicture');
+    return Follow.find({ follower: userId }).populate('following', 'name profilePicture').sort({ createdAt: -1 });
   }
 }

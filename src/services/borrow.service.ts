@@ -130,11 +130,11 @@ export class BorrowService {
   ): Promise<{ incoming: IBorrowRequest[]; outgoing: IBorrowRequest[] }> {
     const incoming = await BorrowRequest.find({ lender: userId })
       .populate('borrower', 'name profilePicture')
-      .populate('item', 'name photos');
+      .populate('item', 'name photos').sort({ createdAt: -1 });
 
     const outgoing = await BorrowRequest.find({ borrower: userId })
       .populate('lender', 'name profilePicture')
-      .populate('item', 'name photos');
+      .populate('item', 'name photos').sort({ createdAt: -1 });
 
     return { incoming, outgoing };
   }
