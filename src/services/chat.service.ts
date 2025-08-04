@@ -1,10 +1,5 @@
 import { Conversation, IConversation } from '../models/Conversation.model';
 import { Message, IMessage } from '../models/Message.model';
-import { NotificationService } from './notification.service';
-import { Notification } from '../models/Notification.model';
-import { activeChats } from '../socket';
-
-const notificationService = new NotificationService();
 
 export class ChatService {
   /**
@@ -70,8 +65,6 @@ export class ChatService {
       throw new Error('Message must have content or an image.');
     }
 
-    console.log("inside the sendmessage service");
-
     const newMessage = await Message.create({
       sender: senderId,
       conversation: conversationId,
@@ -80,44 +73,7 @@ export class ChatService {
     });
 
     // Update the conversation's 'lastMessage' and 'updatedAt' fields
-   const conversation = await Conversation.findByIdAndUpdate(conversationId, { lastMessage: newMessage._id });
-   console.log("the conversation is ", conversation);
-
-   if (conversation) {
-    // --- NEW: Mark sender's notifications for this chat as read ---
-    await Notification.updateMany(
-        { recipient: senderId, type: 'new_message', link: `/chat/${conversationId}`, isRead: false },
-        { isRead: true }
-    );
-    // -----------------------------------------------------------------
-
-    const recipientId = conversation.participants.find(p => p.toString() !== senderId);
-
-    if (recipientId) {
-        // --- NEW: Check if recipient is actively viewing this chat ---
-        const recipientIsActiveInChat = activeChats[recipientId.toString()] === conversationId;
-        // -------------------------------------------------------------
-
-        // Only send a notification if the recipient is NOT looking at the chat
-        if (!recipientIsActiveInChat) {
-            const lastChatNotification = await Notification.findOne({
-                recipient: recipientId,
-                type: 'new_message',
-                link: `/chat/${conversationId}`
-            }).sort({ createdAt: -1 });
-
-            if (!lastChatNotification || lastChatNotification.isRead) {
-                await notificationService.createNotification({
-                    recipient: recipientId.toString(),
-                    sender: senderId,
-                    type: 'new_message',
-                    message: 'sent you a new message.',
-                    link: `/chat/${conversationId}`
-                });
-            }
-        }
-    }
-}
+    await Conversation.findByIdAndUpdate(conversationId, { lastMessage: newMessage._id });
 
     return newMessage.populate('sender', 'name profilePicture');
   }
