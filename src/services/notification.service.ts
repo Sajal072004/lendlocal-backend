@@ -98,11 +98,10 @@ public async createNotification(data: INotificationData): Promise<INotification 
 
   // 3. Check the user's EMAIL preferences before sending an email.
   const emailPreferenceKey = data.type as keyof typeof recipientUser.emailNotificationPreferences;
-  console.log("the email preference key for the user is :", emailPreferenceKey);
-  console.log("the email preference for the user is :", recipientUser.emailNotificationPreferences[emailPreferenceKey]);
+  
   
   if (recipientUser.emailNotificationPreferences[emailPreferenceKey] !== false) {
-      console.log("the email preference for the user is true, sending email notification");
+      
       try {
           // Extract item name from the message or data if available
           const itemName = data.itemName || data.metadata?.itemName; // Add itemName to your INotificationData interface if needed
@@ -113,11 +112,7 @@ public async createNotification(data: INotificationData): Promise<INotification 
               itemName
           );
 
-          console.log("the details inside the email are ", {
-              recipientUser: recipientUser.email,
-              subject: dynamicSubject,
-              text: `Hi ${recipientUser.name},\n\n${populatedNotification.sender.name} ${data.message}\n\nYou can view it here: ${process.env.FRONTEND_URL}${data.link}\n\nThanks,\nThe LendLocal Team`
-          });
+          
 
           const emailResponse = await sendEmail({
               to: recipientUser.email,
@@ -125,7 +120,7 @@ public async createNotification(data: INotificationData): Promise<INotification 
               text: `Hi ${recipientUser.name},\n\n${populatedNotification.sender.name} ${data.message}\n\nYou can view it here: ${process.env.FRONTEND_URL}${data.link}\n\nThanks,\nThe LendLocal Team`
           });
           
-          console.log("the email response is ", emailResponse);
+          
       } catch (error) {
           console.error("Failed to send notification email:", error);
           // We don't throw an error here because the main notification (on-site) was still successful.
