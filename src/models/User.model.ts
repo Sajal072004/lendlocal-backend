@@ -56,7 +56,7 @@ const UserSchema: Schema = new Schema({
   email: { type: String, required: true, unique: true, lowercase: true },
   password: { type: String, select: false },
   googleId: { type: String, unique: true, sparse: true },
-  profilePicture: { type: String, default:"https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.freepik.com%2Fpremium-vector%2Fprofile-picture-placeholder-avatar-silhouette-gray-tones-icon-colored-shapes-gradient_291679346.htm&psig=AOvVaw1gDWHqS1dj6RVCo7nE8M6I&ust=1754497830372000&source=images&cd=vfe&opi=89978449&ved=0CBUQjRxqFwoTCJC76vSL9I4DFQAAAAAdAAAAABAE" },
+  profilePicture: { type: String, default:"https://res.cloudinary.com/dn3vvlhq6/image/upload/v1754411762/LendLocal/profile_pictures/auf9tyhto6iefr12ire1.avif" },
   reputationScore: { type: Number, default: 5, min: 1, max: 5 },
   location: {
     type: {
