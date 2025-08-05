@@ -59,10 +59,95 @@ export class AuthService {
 
     // 5. Send the OTP via email
     try {
+      // Format current date as "15th Aug 8:55Pm"
+      const now = new Date();
+      const day = now.getDate();
+      const daySuffix = (d: number) => {
+        if (d > 3 && d < 21) return 'th';
+        switch (d % 10) {
+          case 1: return 'st';
+          case 2: return 'nd';
+          case 3: return 'rd';
+          default: return 'th';
+        }
+      };
+      const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      const month = monthNames[now.getMonth()];
+      let hours = now.getHours();
+      const minutes = now.getMinutes().toString().padStart(2, '0');
+      const ampm = hours >= 12 ? 'Pm' : 'Am';
+      hours = hours % 12 || 12;
+      const formattedDate = `${day}${daySuffix(day)} ${month} ${hours}:${minutes} ${ampm}`;
+
       await sendEmail({
         to: user.email,
-        subject: 'Your LendLocal Verification Code',
-        text: `Welcome to LendLocal! Your verification code is: ${otp}. It will expire in 10 minutes.`,
+        subject: `Your LendLocal Verification Code (${formattedDate})`,
+        html: `
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>LendLocal Verification</title>
+        <style>
+          /* ...styles unchanged... */
+        </style>
+          </head>
+          <body>
+        <div class="email-container">
+          <div class="header">
+            <div class="logo">LendLocal</div>
+            <div class="tagline">Connecting Communities Through Lending</div>
+          </div>
+          
+          <div class="content">
+            <h1 class="welcome-text">Welcome to LendLocal!</h1>
+            <p class="description">
+          Thank you for joining our community. To complete your account setup, 
+          please use the verification code below.
+            </p>
+            
+            <div class="verification-box">
+          <div class="verification-label">Your Verification Code</div>
+          <div class="verification-code">${otp}</div>
+          <div class="expiry-notice">⏰ Expires in 10 minutes</div>
+          <div style="margin-top:10px;font-size:13px;color:#718096;">
+            Requested on: <strong>${formattedDate}</strong>
+          </div>
+            </div>
+            
+            <div class="security-notice">
+          <div class="security-title">🔐 Security Notice</div>
+          <div class="security-text">
+            This code is for your account verification only. Never share it with anyone. 
+            LendLocal will never ask for this code via phone or email.
+          </div>
+            </div>
+            
+            <div class="cta-section">
+          <a href="${process.env.FRONTEND_URL}/verify-otp?email=${encodeURIComponent(user.email)}" class="cta-button">Complete Verification</a>
+            </div>
+          </div>
+          
+          <div class="footer">
+            <div class="footer-content">
+          <div class="footer-links">
+            <a href="#">Help Center</a>
+            <a href="#">Contact Support</a>
+            <a href="#">Privacy Policy</a>
+          </div>
+          
+          <div class="company-info">
+            © 2025 LendLocal Inc. All rights reserved.<br>
+            1234 Financial District, Suite 567, Business City, BC 12345
+          </div>
+            </div>
+          </div>
+        </div>
+          </body>
+          </html>
+        `,
+        text: `Welcome to LendLocal! Your verification code is: ${otp}. It will expire in 10 minutes.\nRequested on: ${formattedDate}`
       });
       return { message: 'OTP sent to your email. Please verify your account.' };
     } catch (error) {
@@ -162,10 +247,105 @@ export class AuthService {
 
     // Send the plain OTP to the user's email
     try {
+      // Format current date as "15th Aug 8:55 Pm"
+      const now = new Date();
+      const day = now.getDate();
+      const daySuffix = (d: number) => {
+        if (d > 3 && d < 21) return 'th';
+        switch (d % 10) {
+          case 1: return 'st';
+          case 2: return 'nd';
+          case 3: return 'rd';
+          default: return 'th';
+        }
+      };
+      const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      const month = monthNames[now.getMonth()];
+      let hours = now.getHours();
+      const minutes = now.getMinutes().toString().padStart(2, '0');
+      const ampm = hours >= 12 ? 'Pm' : 'Am';
+      hours = hours % 12 || 12;
+      const formattedDate = `${day}${daySuffix(day)} ${month} ${hours}:${minutes} ${ampm}`;
+
       await sendEmail({
         to: user.email,
-        subject: 'Your LendLocal Password Reset Code',
-        text: `You requested a password reset. Your verification code is: ${otp}\n\nThis code is valid for 10 minutes.`,
+        subject: `Your LendLocal Password Reset Code (${formattedDate})`,
+        html: `
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Password Reset - LendLocal</title>
+        <style>
+          /* ...styles unchanged... */
+        </style>
+          </head>
+          <body>
+        <div class="email-container">
+          <div class="header">
+        <div class="logo">LendLocal</div>
+        <div class="tagline">Connecting Communities Through Lending</div>
+          </div>
+          
+          <div class="content">
+        <div class="alert-icon">🔒</div>
+        <h1 class="main-title">Password Reset Request</h1>
+        <p class="description">
+          We received a request to reset your password. Use the code below or click the button to reset your password securely.
+        </p>
+        
+        <div class="verification-box">
+          <div class="verification-label">Password Reset Code</div>
+          <div class="verification-code">${otp}</div>
+          <div class="expiry-notice">⏰ Valid for 10 minutes only</div>
+          <div style="margin-top:10px;font-size:13px;color:#718096;">
+        Requested on: <strong>${formattedDate}</strong>
+          </div>
+        </div>
+        
+        <div class="security-notice">
+          <div class="security-title">🛡️ Security Notice</div>
+          <div class="security-text">
+        If you didn't request this, ignore this email. Your password remains secure.
+          </div>
+        </div>
+        
+        <div class="cta-section">
+          <a href="${process.env.FRONTEND_URL}/reset-password?email=${encodeURIComponent(user.email)}" class="action-button">
+        Reset My Password
+          </a>
+        </div>
+        
+        <div class="alternative-text">
+          <strong>Need help?</strong> Contact our support team if you're having trouble with password reset.
+        </div>
+          </div>
+          
+          <div class="footer">
+        <div class="footer-content">
+          <div class="footer-links">
+        <a href="#">Help Center</a>
+        <a href="#">Contact Support</a>
+        <a href="#">Security Center</a>
+        <a href="#">Privacy Policy</a>
+          </div>
+          
+          <div class="divider"></div>
+          
+          <div class="company-info">
+        © 2025 LendLocal Inc. All rights reserved.<br>
+        1234 Financial District, Suite 567, Business City, BC 12345<br>
+        This is an automated security email from LendLocal.
+          </div>
+        </div>
+          </div>
+        </div>
+          </body>
+          </html>
+        `,
+        // Keep the text version as fallback
+        text: `You requested a password reset. Your verification code is: ${otp}\nRequested on: ${formattedDate}\n\nThis code is valid for 10 minutes.`
       });
     } catch (error) {
       // If email fails, clear the OTP fields to allow a retry
