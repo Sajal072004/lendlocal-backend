@@ -368,9 +368,6 @@ public async createNotification(data: INotificationData): Promise<INotification 
                     
                     <div class="notification-card">
                       <div class="sender-info">
-                        <div class="sender-avatar">
-                          ${populatedNotification.sender.name.charAt(0).toUpperCase()}
-                        </div>
                         <div class="sender-name">${populatedNotification.sender.name}</div>
                       </div>
                       
