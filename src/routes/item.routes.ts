@@ -13,9 +13,9 @@ import {
 
 const router = Router();
 
-// We are removing 'router.use(protect);' from here
 
-// And adding 'protect' to each route individually
+
+
 router.post('/', protect, uploadItemPhoto.single('photo'), createItem);
 router.get('/community/:communityId', protect, getItemsByCommunity);
 router.put('/:id', protect, updateItem);

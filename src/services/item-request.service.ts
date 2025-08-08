@@ -18,14 +18,14 @@ export class ItemRequestService {
       requestedBy: userId,
     });
 
-    // Notify all members of the community except the requester
+    
     const membersToNotify = community.members.filter(memberId => memberId.toString() !== userId);
     
     for (const memberId of membersToNotify) {
       await notificationService.createNotification({
         recipient: memberId.toString(),
         sender: userId,
-        type: 'new_item_request', // We'll need to add this type
+        type: 'new_item_request', 
         message: `is looking for a "${itemRequest.itemName}" in your community.`,
         link: `/community/${requestData.community}`
       });

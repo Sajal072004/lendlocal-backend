@@ -3,7 +3,7 @@ import nodemailer from 'nodemailer';
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST,
   port: Number(process.env.EMAIL_PORT),
-  secure: true, // true for 465, false for other ports
+  secure: true, 
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
@@ -14,7 +14,7 @@ interface EmailOptions {
   to: string;
   subject: string;
   text: string;
-  html?: string; // Add this optional property
+  html?: string; 
 }
 
 export const sendEmail = async (options: EmailOptions) => {
@@ -23,7 +23,7 @@ export const sendEmail = async (options: EmailOptions) => {
     to: options.to,
     subject: options.subject,
     text: options.text,
-    ...(options.html && { html: options.html }), // Include html if provided
+    ...(options.html && { html: options.html }), 
   };
 
   await transporter.sendMail(mailOptions);

@@ -17,7 +17,7 @@ export class ReportService {
       throw new Error('You must report either a user or an item.');
     }
 
-    // You can't report yourself
+    
     if (reportedUserId && reporterId === reportedUserId) {
       throw new Error("You cannot report yourself.");
     }

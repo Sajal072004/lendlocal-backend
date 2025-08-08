@@ -63,7 +63,7 @@ export class AdminService {
     return user;
   }
 
-  // ... inside the AdminService class
+  
 
   /**
    * Retrieves all reports from the system.
@@ -84,7 +84,7 @@ export class AdminService {
     if (!report) {
       throw new Error('Report not found.');
     }
-    // You might want to add more validation for the status value here
+    
     report.status = status as any;
     await report.save();
     return report;

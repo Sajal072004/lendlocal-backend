@@ -1,6 +1,6 @@
 import { Notification, INotification, NotificationType } from '../models/Notification.model';
 import { User } from '../models/User.model';
-import { io } from '../socket'; // Import the initialized io instance
+import { io } from '../socket'; 
 import { sendEmail } from '../utils/email';
 
 interface INotificationData {
@@ -9,8 +9,8 @@ interface INotificationData {
     type: NotificationType;
     message: string;
     link: string;
-    itemName?: string; // Optional, if applicable
-    metadata?: { itemName?: string }; // Optional metadata object
+    itemName?: string; 
+    metadata?: { itemName?: string }; 
 }
 
 export class NotificationService {
@@ -23,7 +23,7 @@ export class NotificationService {
         hour: 'numeric',
         minute: '2-digit',
         hour12: true
-    }); // e.g., "Dec 15, 2:30 PM"
+    }); 
     
     switch (type) {
         case 'new_borrow_request': 
@@ -89,22 +89,22 @@ public async createNotification(data: INotificationData): Promise<INotification 
       throw new Error("Recipient user not found.");
   }
       
-  // 1. Always create the notification record for the website.
+  
   const notification = await Notification.create(data);
   const populatedNotification = await notification.populate('sender', 'name profilePicture') as unknown as INotification & { sender: { name: string; profilePicture: string } };
 
-  // 2. Always emit the real-time event to update the website UI.
+  
   io.to(data.recipient).emit('new_notification', populatedNotification);
 
-  // 3. Check the user's EMAIL preferences before sending an email.
+  
   const emailPreferenceKey = data.type as keyof typeof recipientUser.emailNotificationPreferences;
   
   
   if (recipientUser.emailNotificationPreferences[emailPreferenceKey] !== false) {
       
       try {
-          // Extract item name from the message or data if available
-          const itemName = data.itemName || data.metadata?.itemName; // Add itemName to your INotificationData interface if needed
+          
+          const itemName = data.itemName || data.metadata?.itemName; 
           
           const dynamicSubject = this.getSubjectForType(
               data.type, 
@@ -418,18 +418,18 @@ public async createNotification(data: INotificationData): Promise<INotification 
               </body>
               </html>
             `,
-            // Keep the text version as fallback
+            
             text: `Hi ${recipientUser.name},\n\n${populatedNotification.sender.name} ${data.message}\n\nYou can view it here: ${process.env.FRONTEND_URL}${data.link}\n\nThanks,\nThe LendLocal Team`
           });
           
           
       } catch (error) {
           console.error("Failed to send notification email:", error);
-          // We don't throw an error here because the main notification (on-site) was still successful.
+          
       }
   }
 
-  // 4. Always return the created notification object.
+  
   return populatedNotification;
 }
 

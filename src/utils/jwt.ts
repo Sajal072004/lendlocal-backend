@@ -14,10 +14,10 @@ export const generateToken = (userId: string, type: 'user' | 'admin' = 'user'): 
 
   const payload = {
     id: userId,
-    type: type // Include the type in the payload
+    type: type 
   };
 
   return jwt.sign(payload, secret, {
-    expiresIn: Number(process.env.JWT_EXPIRES_IN) || 86400 // 24 hours
+    expiresIn: Number(process.env.JWT_EXPIRES_IN) || 86400 
   });
 };

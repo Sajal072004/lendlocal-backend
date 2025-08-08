@@ -3,7 +3,7 @@ import { Follow } from '../models/Follow.model';
 import { Item } from '../models/Item.model';
 import { User, IUser, INotificationPreferences } from '../models/User.model';
 
-// Interface for the data that can be updated
+
 interface IUpdateProfileData {
   name?: string;
   phoneNumber?: string;
@@ -17,7 +17,7 @@ interface IUpdateProfileData {
 }
 
 export class UserService {
-  // ... inside the UserService class
+  
 
   /**
    * Gets a user's public profile information.
@@ -25,13 +25,13 @@ export class UserService {
    */
   public async getProfileById(userId: string): Promise<any> {
     const user = await User.findById(userId).select(
-      'name profilePicture reputationScore createdAt address' // Keep address object
+      'name profilePicture reputationScore createdAt address' 
     );
     if (!user) {
       throw new Error('User not found.');
     }
 
-    // Perform counts in parallel for efficiency
+    
     const [followerCount, transactionCount] = await Promise.all([
       Follow.countDocuments({ following: userId }),
       BorrowRequest.countDocuments({
@@ -40,7 +40,7 @@ export class UserService {
       })
     ]);
 
-    // Return a combined object
+    
     return {
       ...user.toObject(),
       followerCount,
@@ -65,7 +65,7 @@ export class UserService {
   }
 
 
-  // ... inside the UserService class
+  
 
   /**
    * Gets a history of items the user has borrowed.
@@ -93,7 +93,7 @@ export class UserService {
   }
 
   public async findAllUsers(currentUserId: string): Promise<any> {
-    // Find all users except the one making the request
+    
     return User.find({ _id: { $ne: currentUserId } }).select('name profilePicture');
   }
 
@@ -103,7 +103,7 @@ export class UserService {
         throw new Error('User not found.');
     }
 
-    // Update the preferences
+    
     user.notificationPreferences = {
         ...user.notificationPreferences,
         ...preferences,

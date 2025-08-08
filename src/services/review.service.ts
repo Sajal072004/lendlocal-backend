@@ -15,22 +15,22 @@ export class ReviewService {
 
     const borrowRequest = await BorrowRequest.findById(requestId);
 
-    // 1. Verify the request is completed.
+    
     if (!borrowRequest || borrowRequest.status !== 'returned') {
       throw new Error('You can only review a completed transaction.');
     }
     
-    // 2. Determine who is being reviewed.
+    
     const isBorrowerReviewing = borrowRequest.borrower.toString() === reviewerId;
     const revieweeId = isBorrowerReviewing ? borrowRequest.lender : borrowRequest.borrower;
     
-    // 3. Prevent duplicate reviews.
+    
     const existingReview = await Review.findOne({ borrowRequest: requestId, reviewer: reviewerId });
     if (existingReview) {
       throw new Error('You have already reviewed this transaction.');
     }
     
-    // 4. Create the review.
+    
     const review = await Review.create({
       borrowRequest: requestId,
       reviewer: reviewerId,
@@ -39,34 +39,34 @@ export class ReviewService {
       comment,
     });
     
-    // 5. Update the reviewee's reputation score.
+    
     await this.updateReputationScore(revieweeId.toString());
 
     return review;
   }
   
   private async updateReputationScore(userId: string): Promise<void> {
-    // Find all reviews where this user was the reviewee
+    
     const reviews = await Review.find({ reviewee: userId });
     
-    // Calculate the new average rating
+    
     const totalRating = reviews.reduce((acc, review) => acc + review.rating, 0);
     const newScore = totalRating / reviews.length;
     
-    // Update the user's score in the User document
+    
     await User.findByIdAndUpdate(userId, { reputationScore: newScore });
   }
 
-   // --- ADD THIS NEW METHOD ---
+   
   /**
    * Gets all reviews for a specific user (where the user is the reviewee).
    * @param userId The ID of the user whose reviews are to be fetched.
    */
   public async getReviewsForUser(userId: string): Promise<IReview[]> {
     const reviews = await Review.find({ reviewee: userId })
-      .populate('reviewer', 'name profilePicture') // Get reviewer's info
-      .populate('item', 'name photos') // Get item's info
-      .sort({ createdAt: -1 }); // Show latest reviews first
+      .populate('reviewer', 'name profilePicture') 
+      .populate('item', 'name photos') 
+      .sort({ createdAt: -1 }); 
 
     return reviews;
   }

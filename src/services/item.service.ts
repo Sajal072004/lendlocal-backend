@@ -26,19 +26,19 @@ export class ItemService {
   public async create(data: ICreateItemData): Promise<IItem> {
     const { name, description, category, photos, ownerId, communityId } = data;
   
-    // Verify the user is a member of the community.
+    
     const community = await Community.findOne({ _id: communityId, members: ownerId });
     if (!community) {
       throw new Error('You must be a member of this community to add an item.');
     }
   
-    // Create the new item with the correct field names for the model
+    
     const item = await Item.create({
       name,
       description,
       category,
       photos: photos || [],
-      owner: ownerId, // <-- THE FIX: Map ownerId to the 'owner' field
+      owner: ownerId, 
       community: communityId,
     });
   
@@ -49,7 +49,7 @@ export class ItemService {
    * Finds all items within a specific community.
    */
   public async findByCommunity(communityId: string, userId: string): Promise<IItem[]> {
-    // Verify the user is a member of the community to see its items.
+    
     const community = await Community.findOne({ _id: communityId, members: userId });
     if (!community) {
       throw new Error('You must be a member of this community to view its items.');
@@ -67,7 +67,7 @@ export class ItemService {
       throw new Error('Item not found.');
     }
     
-    // Ensure the user trying to update the item is its owner.
+    
     if (item.owner.toString() !== userId.toString()) {
       throw new Error('You are not authorized to update this item.');
     }
@@ -77,7 +77,7 @@ export class ItemService {
   
   
 
-  // lendlocal-backend/src/services/item.service.ts
+  
 
   /**
    * Searches for items across all communities based on a text query and the user's location.
@@ -93,29 +93,29 @@ export class ItemService {
     }
 
     const searchPipeline = [
-      // 1. Start with a geospatial search on the 'users' collection
+      
       {
         $geoNear: {
           near: { type: 'Point', coordinates: [longitude, latitude] },
-          distanceField: 'ownerDistance', // This field will hold the calculated distance
+          distanceField: 'ownerDistance', 
           spherical: true,
-          // Optional: maxDistance: 50000 // Limit search to 50km
+          
         }
       },
-      // 2. Join with the 'items' collection to find items owned by these nearby users
+      
       {
         $lookup: {
-          from: 'items', // The name of the items collection
-          localField: '_id', // The 'user' _id
-          foreignField: 'owner', // The 'owner' field on the item
-          as: 'items' // The array of items owned by the user
+          from: 'items', 
+          localField: '_id', 
+          foreignField: 'owner', 
+          as: 'items' 
         }
       },
-      // 3. Unwind the items array to de-normalize the data
+      
       {
         $unwind: '$items'
       },
-      // 4. Replace the root to promote the item to the top level
+      
       {
         $replaceRoot: {
           newRoot: {
@@ -123,11 +123,11 @@ export class ItemService {
           }
         }
       },
-      // 5. Match against the user's text query
+      
       {
         $match: {
           $and: [
-            { availabilityStatus: 'available' }, // Only show available items
+            { availabilityStatus: 'available' }, 
             {
               $or: [
                 { name: { $regex: query, $options: 'i' } },
@@ -137,7 +137,7 @@ export class ItemService {
           ]
         }
       },
-       // 6. Final lookup to populate the owner details back into the item
+       
       {
         $lookup: {
           from: 'users',
@@ -146,13 +146,13 @@ export class ItemService {
           as: 'owner'
         }
       },
-      // 7. Deconstruct the owner array
+      
       {
         $unwind: '$owner'
       }
     ];
     
-    // We must execute the aggregation on the User model because $geoNear must be the first stage
+    
     const results = await User.aggregate(searchPipeline as any[]);
     return results;
   }
@@ -171,7 +171,7 @@ export class ItemService {
     return item;
   }
 
-  // --- ADD THIS NEW METHOD ---
+  
     /**
      * Finds all items across all communities.
      * Intended for the main search/explore page.
@@ -179,7 +179,7 @@ export class ItemService {
     public async findAll(): Promise<IItem[]> {
       return Item.find({})
           .populate('owner', 'name profilePicture')
-          .sort({ createdAt: -1 }); // Sort by newest first
+          .sort({ createdAt: -1 }); 
   }
 
   /**
@@ -199,15 +199,15 @@ export class ItemService {
         throw new Error('You are not authorized to delete this item.');
     }
     
-    // Prevent deletion if the item is currently borrowed
+    
     if (item.availabilityStatus === 'borrowed') {
         throw new Error('Cannot delete an item that is currently borrowed.');
     }
 
-    // Delete the item itself
+    
     await Item.findByIdAndDelete(itemId);
 
-    // Also, delete any pending borrow requests associated with this item
+    
     await BorrowRequest.deleteMany({ item: itemId, status: 'pending' });
 }
 }

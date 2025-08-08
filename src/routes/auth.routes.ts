@@ -13,11 +13,11 @@ import { protect } from '../middleware/auth.middleware';
 
 const router = Router();
 
-// ==> Password-based Routes <==
+
 router.post('/register', registerUser);
 router.post('/login', loginUser);
 router.post('/verify-otp', verifyOtp);
-// ==> Google OAuth Routes <==
+
 router.get(
   '/google',
   passport.authenticate('google', { scope: ['profile', 'email'] })

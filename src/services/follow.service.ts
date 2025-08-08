@@ -11,22 +11,22 @@ export class FollowService {
    * @param followingId The user being followed.
    */
   public async followUser(followerId: string, followingId: string): Promise<any> {
-    // Prevent users from following themselves
+    
     if (followerId === followingId) {
       throw new Error("You cannot follow yourself.");
     }
-    // The unique index on the model will prevent duplicates
+    
     const follow = await Follow.create({ follower: followerId, following: followingId });
 
-    // --- NOTIFICATION ---
+    
     await notificationService.createNotification({
-      recipient: followingId, // The user who is being followed
+      recipient: followingId, 
       sender: followerId,
       type: 'new_follower',
       message: `You have a new follower!`,
       link: `/user/${followerId}/profile`
   });
-  // --------------------
+  
 
 
     return follow;

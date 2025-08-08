@@ -11,10 +11,10 @@ import {
 
 const router = Router();
 
-// This is a public route for an admin to log in
+
 router.post('/login', loginAdmin);
 
-// All routes below this are protected and require a valid admin session
+
 router.use(protectAdmin);
 
 router.get('/analytics', getAnalytics);

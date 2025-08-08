@@ -1,13 +1,12 @@
 import mongoose, { Schema, Document } from 'mongoose';
 import bcrypt from 'bcryptjs';
 
-// Interface for GeoJSON Point
 interface IPoint {
   type: 'Point';
   coordinates: [number, number]; // [longitude, latitude]
 }
 
-// An interface for a structured address
+
 interface IAddress {
   street: string;
   city: string;
@@ -22,14 +21,14 @@ export interface INotificationPreferences {
   item_returned?: boolean;
   return_confirmed?: boolean;
   new_join_request?: boolean;
-  new_item_request?: boolean; // For wanted items
+  new_item_request?: boolean; 
   new_offer?: boolean;
   offer_accepted?: boolean;
   new_follower?: boolean;
   new_message?: boolean;
 }
 
-// Update the main User interface
+
 export interface IUser extends Document {
   _id: mongoose.Types.ObjectId; 
   name: string;
@@ -108,10 +107,10 @@ const UserSchema: Schema = new Schema({
   },
 }, { timestamps: true });
 
-// Create a 2dsphere index for efficient geospatial queries
+
 UserSchema.index({ location: '2dsphere' });
 
-// pre-save password hashing middleware
+
 UserSchema.pre<IUser>('save', async function (next) {
   if (!this.isModified('password') || !this.password) {
     return next();

@@ -9,7 +9,7 @@ export class CommunityService {
    * Creates a new community.
    */
   public async create(name: string, description: string, ownerId: string): Promise<ICommunity> {
-    // 1. Dynamically import nanoid
+    
     const { customAlphabet } = await import('nanoid');
     const nanoid = customAlphabet('ABCDEFGHJKLMNPQRSTUVWXYZ123456789', 6);
     const inviteCode = nanoid();
@@ -19,7 +19,7 @@ export class CommunityService {
       description,
       owner: ownerId,
       members: [ownerId],
-      admins: [ownerId], // Assuming admin role from previous discussion
+      admins: [ownerId], 
       inviteCode,
     });
 
@@ -32,11 +32,11 @@ export class CommunityService {
    * Allows a user to join an existing community using an invite code.
    */
   public async join(inviteCode: string, userId: string): Promise<ICommunity> {
-    // 2. Use findOneAndUpdate with $addToSet for an atomic and safer operation
+    
     const community = await Community.findOneAndUpdate(
       { inviteCode },
-      { $addToSet: { members: userId, admins: userId } }, // Add user to members and make them an admin
-      { new: true } // Return the updated document
+      { $addToSet: { members: userId, admins: userId } }, 
+      { new: true } 
     );
 
     if (!community) {
@@ -98,9 +98,9 @@ export class CommunityService {
  public async findAll(userId: string): Promise<any[]> {
   const communities = await Community.find()
     .select('name description members owner').sort({ createdAt: -1 })
-    .lean(); // Use lean for better performance and easier modification
+    .lean(); 
 
-  // Get all pending requests for the current user
+  
   const userPendingRequests = await JoinRequest.find({
     user: userId,
     status: 'pending'
@@ -110,7 +110,7 @@ export class CommunityService {
     userPendingRequests.map(req => (req.community as any).toString())
   );
 
-  // Add a 'hasPendingRequest' flag to each community object
+  
   const results = communities.map(community => ({
     ...community,
     memberCount: community.members.length,
@@ -173,7 +173,7 @@ export class CommunityService {
   }
 
 
-  // --- ADD THIS NEW METHOD ---
+  
   /**
    * Updates a community's details.
    * @param communityId The ID of the community to update.
@@ -191,7 +191,7 @@ export class CommunityService {
       throw new Error('You are not authorized to edit this community.');
     }
 
-    // Update the fields if they are provided
+    
     if (updates.name) community.name = updates.name;
     if (updates.description) community.description = updates.description;
 

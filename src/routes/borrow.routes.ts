@@ -4,7 +4,7 @@ import { confirmReturn, getRequestById, getRequests, initiateReturn, requestItem
 
 const router = Router();
 
-// Protect all routes in this file
+
 router.use(protect);
 
 router.post('/request/:itemId', requestItem);

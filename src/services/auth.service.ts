@@ -4,7 +4,7 @@ import otpGenerator from 'otp-generator';
 import { generateToken } from '../utils/jwt';
 import { sendEmail } from '../utils/email';
 
-// Define the shape of the registration data, including optional location
+
 interface IRegisterData extends Pick<IUser, 'name' | 'email' | 'password'> {
   latitude?: number;
   longitude?: number;
@@ -25,26 +25,26 @@ export class AuthService {
       throw new Error('Name, email, and password are required.');
     }
 
-    // Check if a verified user with this email already exists
+    
     const existingUser = await User.findOne({ email, isVerified: true });
     if (existingUser) {
       throw new Error('An account with this email already exists.');
     }
     
-    // If an unverified user exists, remove them to start fresh
+    
     await User.deleteOne({ email, isVerified: false });
 
-    // 1. Generate a 6-digit OTP
+    
     const otp = otpGenerator.generate(6, {
       upperCaseAlphabets: false,
       specialChars: false,
       lowerCaseAlphabets: false,
     });
 
-    // 2. Set OTP expiration for 10 minutes from now
+    
     const otpExpires = new Date(Date.now() + 10 * 60 * 1000);
 
-    // 3. Prepare user data
+    
     const newUser: Partial<IUser> = { name, email, password, otp, otpExpires, isVerified: false };
     if (latitude && longitude) {
       newUser.location = {
@@ -53,13 +53,13 @@ export class AuthService {
       };
     }
 
-    // 4. Create the unverified user
+    
     const user = new User(newUser);
     await user.save();
 
-    // 5. Send the OTP via email
+    
     try {
-      // Format current date as "15th Aug 8:55Pm"
+      
       const now = new Date();
       const day = now.getDate();
       const daySuffix = (d: number) => {
@@ -152,7 +152,7 @@ export class AuthService {
       return { message: 'OTP sent to your email. Please verify your account.' };
     } catch (error) {
       console.error('Email sending failed:', error);
-      // Clean up the created user if email fails
+      
       await User.findByIdAndDelete(user._id);
       throw new Error('Failed to send verification email. Please try again.');
     }
@@ -174,13 +174,13 @@ export class AuthService {
       throw new Error('Invalid or expired OTP.');
     }
 
-    // Verification successful: update user record
+    
     user.isVerified = true;
     user.otp = undefined;
     user.otpExpires = undefined;
     await user.save();
 
-    // Log the user in by generating a token
+    
     const token = generateToken(user._id.toString());
     const userObject = user.toObject();
     delete userObject.password;
@@ -208,7 +208,7 @@ export class AuthService {
       throw new Error('Your account has been disabled. Please contact support.');
     }
 
-    // Add a check to ensure the account is verified
+    
     if (user && !user.isVerified) {
       throw new Error('Account not verified. Please check your email and enter the OTP.');
     }
@@ -230,24 +230,24 @@ export class AuthService {
   public async forgotPassword(email: string): Promise<void> {
     const user = await User.findOne({ email });
     if (!user) {
-      // Don't reveal that the user doesn't exist for security reasons
+      
       return;
     }
 
-    // Generate a 6-digit OTP
+    
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     
-    // Hash the OTP before saving for security
+    
     const hashedOtp = await bcrypt.hash(otp, 10);
 
     user.passwordResetOTP = hashedOtp;
-    // Set OTP to expire in 10 minutes
+    
     user.passwordResetExpires = new Date(Date.now() + 10 * 60 * 1000);
     await user.save();
 
-    // Send the plain OTP to the user's email
+    
     try {
-      // Format current date as "15th Aug 8:55 Pm"
+      
       const now = new Date();
       const day = now.getDate();
       const daySuffix = (d: number) => {
@@ -344,11 +344,11 @@ export class AuthService {
           </body>
           </html>
         `,
-        // Keep the text version as fallback
+        
         text: `You requested a password reset. Your verification code is: ${otp}\nRequested on: ${formattedDate}\n\nThis code is valid for 10 minutes.`
       });
     } catch (error) {
-      // If email fails, clear the OTP fields to allow a retry
+      
       user.passwordResetOTP = undefined;
       user.passwordResetExpires = undefined;
       await user.save();
@@ -374,7 +374,7 @@ export class AuthService {
       throw new Error('Invalid or expired OTP.');
     }
 
-    // Reset password and clear OTP fields
+    
     user.password = newPassword;
     user.passwordResetOTP = undefined;
     user.passwordResetExpires = undefined;
