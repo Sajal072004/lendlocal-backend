@@ -11,26 +11,26 @@ cloudinary.config({
 const itemStorage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
-    folder: 'LendLocal', // Folder name in Cloudinary
+    folder: 'LendLocal',
     allowedFormats: ['jpg', 'png', 'jpeg'] 
-  } as any, // 'any' is used here due to a type mismatch in the library
+  } as any,
 });
 
-// Uploader for Chat Images
+
 const chatStorage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
-    folder: 'LendLocal/chat_images', // Separate folder for chat images
+    folder: 'LendLocal/chat_images',
     allowedFormats: ['jpg', 'png', 'jpeg']
   } as any,
   
 });
 
-// Uploader for Profile Pictures
+
 const profileStorage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
-    folder: 'LendLocal/profile_pictures', // Separate folder
+    folder: 'LendLocal/profile_pictures', 
     allowedFormats: ['jpg', 'png', 'jpeg']
   } as any,
 });

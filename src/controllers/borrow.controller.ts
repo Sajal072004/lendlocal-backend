@@ -18,7 +18,7 @@ export const requestItem = async (req: Request, res: Response) => {
 export const respondToRequest = async (req: Request, res: Response) => {
   try {
     const { requestId } = req.params;
-    const { response } = req.body; // 'approved' or 'denied'
+    const { response } = req.body; 
     const lenderId = req.user!._id.toString();
 
     if (response !== 'approved' && response !== 'denied') {
@@ -71,7 +71,7 @@ export const initiateReturn = async (req: Request, res: Response) => {
   try {
       const { id } = req.params;
       const userId = req.user!._id;
-      const { rating, comment } = req.body; // Get optional review data
+      const { rating, comment } = req.body; 
       await borrowService.initiateReturn(id, userId.toString(), { rating, comment });
       res.status(200).json({ message: 'Return initiated. Awaiting lender confirmation.' });
   } catch (error) {
@@ -83,7 +83,7 @@ export const confirmReturn = async (req: Request, res: Response) => {
   try {
       const { id } = req.params;
       const userId = req.user!._id;
-      const { rating, comment } = req.body; // Get optional review data
+      const { rating, comment } = req.body; 
       await borrowService.confirmReturn(id, userId.toString(), { rating, comment });
       res.status(200).json({ message: 'Return confirmed successfully.' });
   } catch (error) {

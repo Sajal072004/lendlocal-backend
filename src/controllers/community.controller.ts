@@ -6,7 +6,7 @@ const communityService = new CommunityService();
 export const createCommunity = async (req: Request, res: Response) => {
   try {
     const { name, description } = req.body;
-    const ownerId = req.user!._id; // We get req.user from the 'protect' middleware
+    const ownerId = req.user!._id; 
 
     const community = await communityService.create(name, description, ownerId.toString());
     res.status(201).json(community);
@@ -67,7 +67,7 @@ export const getCommunityInviteCode = async (req: Request, res: Response) => {
 
 export const getAllCommunities = async (req: Request, res: Response) => {
   try {
-    const userId = req.user!._id; // Get user ID from protect middleware
+    const userId = req.user!._id; 
     const communities = await communityService.findAll(userId.toString());
     res.status(200).json(communities);
   } catch (error) {
@@ -100,7 +100,7 @@ export const getCommunityJoinRequests = async (req: Request, res: Response) => {
 export const respondToCommunityJoinRequest = async (req: Request, res: Response) => {
   try {
     const { requestId } = req.params;
-    const { response } = req.body; // 'approve' or 'reject'
+    const { response } = req.body; 
     const userId = req.user!._id;
     await communityService.respondToJoinRequest(requestId, userId.toString(), response);
     res.status(200).json({ message: 'Response recorded.' });

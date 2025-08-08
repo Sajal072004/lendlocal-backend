@@ -17,7 +17,7 @@ export const getConversations = async (req: Request, res: Response) => {
 export const createConversation = async (req: Request, res: Response) => {
     try {
         const userId1 = req.user!._id.toString();
-        const { userId2 } = req.body; // The ID of the user to start a chat with
+        const { userId2 } = req.body; 
         const conversation = await chatService.findOrCreateConversation(userId1, userId2);
         res.status(201).json(conversation);
     } catch (error) {
@@ -46,8 +46,8 @@ export const sendMessage = async (req: Request, res: Response) => {
         const newMessage = await chatService.sendMessage(senderId, conversationId, content, imageUrl);
         
         
-        // --- REAL-TIME LOGIC ---
-        // Emit the newly created message to the specific conversation room.
+        
+        
         io.to(conversationId).emit('receiveMessage', newMessage);
         
         res.status(201).json(newMessage);

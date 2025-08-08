@@ -16,7 +16,7 @@ const JoinRequestSchema: Schema = new Schema({
   status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
 }, { timestamps: true });
 
-// This index prevents a user from creating multiple "pending" requests for the same community.
+
 JoinRequestSchema.index({ community: 1, user: 1, status: 1 }, { unique: true, partialFilterExpression: { status: 'pending' } });
 
 export const JoinRequest = mongoose.model<IJoinRequest>('JoinRequest', JoinRequestSchema);

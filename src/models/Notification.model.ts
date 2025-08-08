@@ -20,7 +20,7 @@ export interface INotification extends Document {
   sender: IUser['_id'];
   type: NotificationType;
   message: string;
-  link: string; // A URL to the relevant page (e.g., /requests/123)
+  link: string; 
   isRead: boolean;
 }
 

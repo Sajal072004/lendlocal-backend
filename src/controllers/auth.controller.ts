@@ -24,18 +24,18 @@ export const loginUser = async (req: Request, res: Response) => {
   try {
     const { token, user } = await authService.login(req.body);
 
-    // res.cookie('token', token, {
-    //   httpOnly: true,
-    //   secure: process.env.NODE_ENV === 'production',
-    //   sameSite: 'none', // Must be 'none' for cross-site cookies
-    //   // Ensure your frontend URL is a subdomain of this, e.g., lendlocal-frontend.vercel.app
-    //   domain: process.env.NODE_ENV === 'production' ? '.vercel.app' : undefined, 
-    //   path: '/',
-    //   expires: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
-    // });
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
-    // REMOVED: res.cookie(...)
-    // ADDED: Send token in response body
+    
+    
     res.status(200).json({ status: 'success', user, token });
   } catch (error) {
     if (error instanceof Error) {
@@ -50,16 +50,16 @@ export const verifyOtp = async (req: Request, res: Response) => {
     const { email, otp } = req.body;
     const { token, user } = await authService.verifyOtp(email, otp);
     
-    // // Set cookie and log the user in automatically upon verification
-    // res.cookie('token', token, {
-    //   httpOnly: true,
-    //   secure: process.env.NODE_ENV === 'production',
-    //   sameSite: 'none', // Must be 'none' for cross-site cookies
-    //   // Ensure your frontend URL is a subdomain of this, e.g., lendlocal-frontend.vercel.app
-    //   domain: process.env.NODE_ENV === 'production' ? '.vercel.app' : undefined, 
-    //   path: '/',
-    //   expires: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
-    // });
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     res.status(200).json({ status: 'success', user, token });
   } catch (error) {
     if (error instanceof Error) {
@@ -69,29 +69,29 @@ export const verifyOtp = async (req: Request, res: Response) => {
   }
 };
 
-// export const googleAuthCallback = (req: Request, res: Response) => {
-//   const user = req.user as IUser | undefined;
 
-//   if (!user) {
-//     return res.status(401).json({ message: 'User authentication failed.' });
-//   }
 
-//   const token = generateToken(user._id.toString());
 
-//   res.cookie('token', token, {
-//     httpOnly: true,
-//     secure: process.env.NODE_ENV === 'production',
-//     sameSite: 'none', // Must be 'none' for cross-site cookies
-//     // Ensure your frontend URL is a subdomain of this, e.g., lendlocal-frontend.vercel.app
-//     domain: process.env.NODE_ENV === 'production' ? '.vercel.app' : undefined, 
-//     path: '/',
-//     expires: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
-//   });
 
-//   res.redirect(`${process.env.FRONTEND_URL}/dashboard`);
-// };
 
-// --- UPDATED googleAuthCallback ---
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export const googleAuthCallback = (req: Request, res: Response) => {
   const user = req.user as IUser | undefined;
 
@@ -101,16 +101,16 @@ export const googleAuthCallback = (req: Request, res: Response) => {
 
   const token = generateToken(user._id.toString());
 
-  // REMOVED: res.cookie(...)
-  // ADDED: Redirect with token as a query parameter
+  
+  
   res.redirect(`${process.env.FRONTEND_URL}/callback?token=${token}`);
 };
 
-// ... other controller functions
+
 
 export const getSession = async (req: Request, res: Response) => {
-  // This function is protected by the 'protect' middleware.
-  // If the middleware passes, req.user is guaranteed to be attached.
+  
+  
   res.status(200).json({ user: req.user });
 };
 

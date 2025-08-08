@@ -3,7 +3,7 @@ import { UserService } from '../services/user.service';
 
 const userService = new UserService();
 
-// For fetching any user's public profile
+
 export const getUserProfile = async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
@@ -14,19 +14,19 @@ export const getUserProfile = async (req: Request, res: Response) => {
   }
 };
 
-// For a user to get their own full profile
+
 export const getMyProfile = async (req: Request, res: Response) => {
-    // The 'protect' middleware already attached the user object
+    
     res.status(200).json(req.user);
 };
 
-// For a user to update their own profile
+
 export const updateUserProfile = async (req: Request, res: Response) => {
   try {
     const userId = req.user!._id.toString();
     const updateData = req.body;
 
-    // If a new profile picture was uploaded, add its URL to the update data
+    
     if (req.file) {
       updateData.profilePicture = req.file.path;
     }
@@ -58,12 +58,12 @@ export const getLendingHistory = async (req: Request, res: Response) => {
   }
 };
 
-// ... other controller functions
+
 
 export const getUserLentItems = async (req: Request, res: Response) => {
   try {
       const { userId } = req.params;
-      const items = await userService.getLendingHistory(userId); // We can reuse this service
+      const items = await userService.getLendingHistory(userId); 
       res.status(200).json(items);
   } catch (error) {
       res.status(500).json({ message: "Failed to retrieve user's items." });
@@ -80,7 +80,7 @@ export const getAllUsers = async (req: Request, res: Response) => {
   }
 };
 
-// --- ADD THIS NEW CONTROLLER FUNCTION ---
+
 export const updateNotificationPreferences = async (req: Request, res: Response) => {
   try {
       const userId = req.user!._id;

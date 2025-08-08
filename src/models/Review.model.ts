@@ -1,16 +1,16 @@
 import mongoose, { Schema, Document } from 'mongoose';
 import { IUser } from './User.model';
 import { IBorrowRequest } from './BorrowRequest.model';
-import { IItem } from './Item.model'; // <-- IMPORT IItem
+import { IItem } from './Item.model'; 
 
-// Interface for type safety
+
 export interface IReview extends Document {
   rating: number;
   comment?: string;
   reviewer: IUser['_id'];
   reviewee: IUser['_id'];
   borrowRequest: IBorrowRequest['_id'];
-  item: IItem['_id']; // <-- ADD THIS LINE
+  item: IItem['_id']; 
 }
 
 const ReviewSchema: Schema = new Schema({

@@ -2,10 +2,10 @@ import mongoose, { Schema, Document } from 'mongoose';
 import { IItem } from './Item.model';
 import { IUser } from './User.model';
 
-// Type definition for status
+
 export type RequestStatus = 'pending' | 'approved' | 'denied' | 'returned' | 'cancelled'| 'awaiting_confirmation' | 'return_confirmed';
 
-// Interface for type safety
+
 export interface IBorrowRequest extends Document {
   item: IItem['_id'];
   borrower: IUser['_id'];

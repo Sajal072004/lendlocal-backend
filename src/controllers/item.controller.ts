@@ -8,7 +8,7 @@ export const createItem = async (req: Request, res: Response) => {
     const ownerId = req.user!._id;
     const itemData = { ...req.body, ownerId };
 
-    // If a file was uploaded by multer, add its Cloudinary URL to the photos array
+    
     if (req.file) {
       itemData.photos = [req.file.path];
     }
