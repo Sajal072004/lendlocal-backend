@@ -23,6 +23,8 @@ import {
   getFollowing
 } from '../controllers/follow.controller';
 
+import { getTrustScore } from '../controllers/trustScore.controller';
+
 const router = Router();
 
 
@@ -51,6 +53,9 @@ router.get('/:userId/profile', getUserProfile);
 router.get('/:userId/followers', getFollowers);
 router.get('/:userId/following', getFollowing);
 router.get('/:userId/items', getUserLentItems);
+
+// Public — visitors should be able to see trust score on profiles.
+router.get('/:id/trust-score', getTrustScore);
 
 
 export default router;

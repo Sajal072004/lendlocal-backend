@@ -9,6 +9,7 @@ import {
   forgotPassword,
   resetPassword,
   saveKyc,
+  checkUsernameAvailability,
 } from '../controllers/auth.controller';
 import { protect } from '../middleware/auth.middleware';
 
@@ -30,6 +31,7 @@ router.get(
   googleAuthCallback
 );
 
+router.get('/check-username', checkUsernameAvailability);
 router.post('/forgot-password', forgotPassword);
 router.post('/reset-password', resetPassword);
 

@@ -6,6 +6,7 @@ import { User, IUser, INotificationPreferences } from '../models/User.model';
 
 interface IUpdateProfileData {
   name?: string;
+  username?: string;
   phoneNumber?: string;
   address?: {
     street?: string;
@@ -25,7 +26,7 @@ export class UserService {
    */
   public async getProfileById(userId: string): Promise<any> {
     const user = await User.findById(userId).select(
-      'name profilePicture reputationScore createdAt address' 
+      'name username profilePicture reputationScore createdAt address'
     );
     if (!user) {
       throw new Error('User not found.');
@@ -56,6 +57,17 @@ export class UserService {
     userId: string,
     updateData: IUpdateProfileData
   ): Promise<IUser> {
+    if (updateData.username) {
+      const usernameRegex = /^[a-z0-9_]{3,20}$/;
+      if (!usernameRegex.test(updateData.username)) {
+        throw new Error('Username must be 3-20 characters: lowercase letters, numbers, underscores only.');
+      }
+      const existing = await User.findOne({ username: updateData.username, _id: { $ne: userId } });
+      if (existing) {
+        throw new Error('Username is already taken.');
+      }
+    }
+
     const user = await User.findByIdAndUpdate(userId, { $set: updateData }, { new: true });
 
     if (!user) {

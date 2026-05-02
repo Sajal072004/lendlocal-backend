@@ -32,12 +32,25 @@ passport.use(
         }
 
 
+        // Auto-generate a username from display name, append random suffix on collision.
+        let baseUsername = profile.displayName
+          .toLowerCase()
+          .replace(/\s+/g, '_')
+          .replace(/[^a-z0-9_]/g, '')
+          .slice(0, 16) || 'user';
+        let username = baseUsername;
+        const taken = await User.findOne({ username });
+        if (taken) {
+          username = `${baseUsername}_${Math.floor(1000 + Math.random() * 9000)}`;
+        }
+
         const newUser = await User.create({
           googleId: profile.id,
           name: profile.displayName,
+          username,
           email: profile._json.email,
           profilePicture: profile._json.picture,
-          isVerified: true, // Google users are automatically verified
+          isVerified: true,
         });
         
         return done(null, newUser);

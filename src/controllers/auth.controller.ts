@@ -9,13 +9,16 @@ const PAN_REGEX = /^[A-Z]{5}[0-9]{4}[A-Z]$/;
 const authService = new AuthService();
 
 export const registerUser = async (req: Request, res: Response) => {
-  const { aadhaarNumber, panNumber } = req.body;
+  const { aadhaarNumber, panNumber, username } = req.body;
 
   if (aadhaarNumber && !AADHAAR_REGEX.test(aadhaarNumber)) {
     return res.status(400).json({ message: 'Invalid Aadhaar number. Must be exactly 12 digits.' });
   }
   if (panNumber && !PAN_REGEX.test(panNumber.toUpperCase())) {
     return res.status(400).json({ message: 'Invalid PAN number. Format: ABCDE1234F' });
+  }
+  if (username && !/^[a-z0-9_]{3,20}$/i.test(username)) {
+    return res.status(400).json({ message: 'Username must be 3-20 characters: letters, numbers, underscores only.' });
   }
 
   try {
@@ -119,6 +122,18 @@ export const googleAuthCallback = (req: Request, res: Response) => {
 };
 
 
+
+export const checkUsernameAvailability = async (req: Request, res: Response) => {
+  const { username } = req.query;
+  if (!username || typeof username !== 'string') {
+    return res.status(400).json({ message: 'Username required.' });
+  }
+  if (!/^[a-z0-9_]{3,20}$/i.test(username)) {
+    return res.status(200).json({ available: false, message: 'Invalid format.' });
+  }
+  const exists = await User.findOne({ username: username.toLowerCase() });
+  return res.status(200).json({ available: !exists });
+};
 
 export const getSession = async (req: Request, res: Response) => {
   

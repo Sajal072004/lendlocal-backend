@@ -30,8 +30,9 @@ export interface INotificationPreferences {
 
 
 export interface IUser extends Document {
-  _id: mongoose.Types.ObjectId; 
+  _id: mongoose.Types.ObjectId;
   name: string;
+  username?: string;
   email: string;
   password?: string;
   reputationScore: number;
@@ -55,6 +56,7 @@ export interface IUser extends Document {
 
 const UserSchema: Schema = new Schema({
   name: { type: String, required: true },
+  username: { type: String, unique: true, sparse: true, lowercase: true, trim: true },
   email: { type: String, required: true, unique: true, lowercase: true },
   password: { type: String, select: false },
   googleId: { type: String, unique: true, sparse: true },

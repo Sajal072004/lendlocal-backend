@@ -6,6 +6,7 @@ import { sendEmail } from '../utils/email';
 
 
 interface IRegisterData extends Pick<IUser, 'name' | 'email' | 'password'> {
+  username?: string;
   latitude?: number;
   longitude?: number;
   aadhaarNumber?: string;
@@ -22,19 +23,34 @@ export class AuthService {
     userData: IRegisterData
   ): Promise<{ message: string }> {
     const { email, name, password, latitude, longitude, aadhaarNumber, panNumber } = userData;
+    let { username } = userData;
 
     if (!email || !name || !password) {
       throw new Error('Name, email, and password are required.');
     }
 
-    
+
     const existingUser = await User.findOne({ email, isVerified: true });
     if (existingUser) {
       throw new Error('An account with this email already exists.');
     }
-    
-    
+
+
     await User.deleteOne({ email, isVerified: false });
+
+
+    if (!username) {
+      const baseUsername = name
+        .toLowerCase()
+        .replace(/\s+/g, '_')
+        .replace(/[^a-z0-9_]/g, '');
+      username = baseUsername;
+      const existingUsername = await User.findOne({ username });
+      if (existingUsername) {
+        const suffix = Math.floor(1000 + Math.random() * 9000).toString();
+        username = `${baseUsername}_${suffix}`;
+      }
+    }
 
     
     const otp = otpGenerator.generate(6, {
@@ -47,7 +63,7 @@ export class AuthService {
     const otpExpires = new Date(Date.now() + 10 * 60 * 1000);
 
     
-    const newUser: Partial<IUser> = { name, email, password, otp, otpExpires, isVerified: false };
+    const newUser: Partial<IUser> = { name, username, email, password, otp, otpExpires, isVerified: false };
     if (latitude && longitude) {
       newUser.location = { type: 'Point', coordinates: [longitude, latitude] };
     }

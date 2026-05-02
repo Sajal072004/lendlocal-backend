@@ -12,6 +12,7 @@ import {
   respondToCommunityJoinRequest,
   updateCommunity,
 } from '../controllers/community.controller';
+import { getTrendingItems } from '../controllers/trending.controller';
 
 const router = Router();
 
@@ -27,6 +28,7 @@ router.post('/join', protect, joinCommunity);
 router.post('/', protect, createCommunity);
 router.get('/',protect, getUserCommunities);
 router.get('/:id', protect, getCommunityById);
+router.get('/:id/trending', protect, getTrendingItems);
 router.get('/:id/invite-code',protect, getCommunityInviteCode);
 router.put('/:id', protect, updateCommunity);
 
