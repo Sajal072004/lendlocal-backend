@@ -22,13 +22,15 @@ export const protect = async (req: Request, res: Response, next: NextFunction) =
     const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as { id: string };
     
     
-    req.user = (await User.findById(decoded.id).select('-password')) as IUser | undefined;
+    const foundUser = (await User.findById(decoded.id).select('-password')) as IUser | null;
 
-    if (!req.user) {
+    if (!foundUser) {
         return res.status(401).json({ message: 'User not found' });
     }
 
-    if (req.user.isDisabled) {
+    req.user = foundUser as any;
+
+    if (foundUser.isDisabled) {
       return res.status(403).json({ message: 'Forbidden: Your account has been disabled.' });
     }
     
