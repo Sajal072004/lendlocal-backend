@@ -8,6 +8,8 @@ import { sendEmail } from '../utils/email';
 interface IRegisterData extends Pick<IUser, 'name' | 'email' | 'password'> {
   latitude?: number;
   longitude?: number;
+  aadhaarNumber?: string;
+  panNumber?: string;
 }
 
 export class AuthService {
@@ -19,7 +21,7 @@ export class AuthService {
   public async register(
     userData: IRegisterData
   ): Promise<{ message: string }> {
-    const { email, name, password, latitude, longitude } = userData;
+    const { email, name, password, latitude, longitude, aadhaarNumber, panNumber } = userData;
 
     if (!email || !name || !password) {
       throw new Error('Name, email, and password are required.');
@@ -47,11 +49,11 @@ export class AuthService {
     
     const newUser: Partial<IUser> = { name, email, password, otp, otpExpires, isVerified: false };
     if (latitude && longitude) {
-      newUser.location = {
-        type: 'Point',
-        coordinates: [longitude, latitude],
-      };
+      newUser.location = { type: 'Point', coordinates: [longitude, latitude] };
     }
+    if (aadhaarNumber) newUser.aadhaarNumber = aadhaarNumber;
+    if (panNumber) { newUser.panNumber = panNumber.toUpperCase(); }
+    if (aadhaarNumber && panNumber) newUser.kycCompleted = true;
 
     
     const user = new User(newUser);

@@ -44,8 +44,11 @@ export interface IUser extends Document {
   isDisabled: boolean; 
   phoneNumber?: string; 
   address?: IAddress;
-  passwordResetOTP?: string;       
+  passwordResetOTP?: string;
   passwordResetExpires?: Date;
+  aadhaarNumber?: string;
+  panNumber?: string;
+  kycCompleted: boolean;
   notificationPreferences: INotificationPreferences;
   emailNotificationPreferences: INotificationPreferences;
 }
@@ -77,8 +80,11 @@ const UserSchema: Schema = new Schema({
     state: { type: String },
     pinCode: { type: String },
   },
-  passwordResetOTP: { type: String, select: false }, 
-  passwordResetExpires: { type: Date, select: false }, 
+  passwordResetOTP: { type: String, select: false },
+  passwordResetExpires: { type: Date, select: false },
+  aadhaarNumber: { type: String, select: false },
+  panNumber: { type: String, select: false },
+  kycCompleted: { type: Boolean, default: false },
   notificationPreferences: {
     new_borrow_request: { type: Boolean, default: true },
     request_approved: { type: Boolean, default: true },

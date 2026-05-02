@@ -8,6 +8,7 @@ import {
   getSession,
   forgotPassword,
   resetPassword,
+  saveKyc,
 } from '../controllers/auth.controller';
 import { protect } from '../middleware/auth.middleware';
 
@@ -33,5 +34,6 @@ router.post('/forgot-password', forgotPassword);
 router.post('/reset-password', resetPassword);
 
 router.get('/session', protect, getSession);
+router.post('/kyc', protect, saveKyc);
 
 export default router;

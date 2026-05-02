@@ -1,11 +1,23 @@
 import { Request, Response } from 'express';
 import { AuthService } from '../services/auth.service';
 import { generateToken } from '../utils/jwt';
-import { IUser } from '../models/User.model';
+import { User, IUser } from '../models/User.model';
+
+const AADHAAR_REGEX = /^\d{12}$/;
+const PAN_REGEX = /^[A-Z]{5}[0-9]{4}[A-Z]$/;
 
 const authService = new AuthService();
 
 export const registerUser = async (req: Request, res: Response) => {
+  const { aadhaarNumber, panNumber } = req.body;
+
+  if (aadhaarNumber && !AADHAAR_REGEX.test(aadhaarNumber)) {
+    return res.status(400).json({ message: 'Invalid Aadhaar number. Must be exactly 12 digits.' });
+  }
+  if (panNumber && !PAN_REGEX.test(panNumber.toUpperCase())) {
+    return res.status(400).json({ message: 'Invalid PAN number. Format: ABCDE1234F' });
+  }
+
   try {
     const user = await authService.register(req.body);
     res.status(201).json({ message: 'User registered successfully', user });
@@ -130,5 +142,32 @@ export const resetPassword = async (req: Request, res: Response) => {
     res.status(200).json({ message: 'Password has been reset successfully.' });
   } catch (error) {
     res.status(400).json({ message: (error as Error).message });
+  }
+};
+
+export const saveKyc = async (req: Request, res: Response) => {
+  const { aadhaarNumber, panNumber } = req.body;
+
+  if (!aadhaarNumber || !panNumber) {
+    return res.status(400).json({ message: 'Both Aadhaar number and PAN number are required.' });
+  }
+  if (!AADHAAR_REGEX.test(aadhaarNumber)) {
+    return res.status(400).json({ message: 'Invalid Aadhaar number. Must be exactly 12 digits.' });
+  }
+  if (!PAN_REGEX.test(panNumber.toUpperCase())) {
+    return res.status(400).json({ message: 'Invalid PAN number. Format: ABCDE1234F' });
+  }
+
+  try {
+    const userId = (req.user as IUser)._id;
+    const updated = await User.findByIdAndUpdate(
+      userId,
+      { aadhaarNumber, panNumber: panNumber.toUpperCase(), kycCompleted: true },
+      { new: true }
+    );
+    if (!updated) return res.status(404).json({ message: 'User not found.' });
+    res.status(200).json({ message: 'KYC details saved successfully.', kycCompleted: true });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to save KYC details.' });
   }
 };
